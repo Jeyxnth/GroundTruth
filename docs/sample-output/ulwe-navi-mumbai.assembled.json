@@ -8,10 +8,10 @@
   },
   "transition": {
     "humanFillingLikely": true,
-    "waterFromYear": 1993,
-    "waterUntilYear": 2004,
-    "filledFromYear": null,
-    "builtFromYear": 2005,
+    "waterFromYear": 1992,
+    "waterUntilYear": 2005,
+    "filledFromYear": 2006,
+    "builtFromYear": 2009,
     "gapYears": [
       1985,
       1986,
@@ -21,37 +21,52 @@
     ],
     "runs": [
       {
-        "stage": "built",
+        "stage": "water",
         "startYear": 1988,
-        "endYear": 1992
-      },
-      {
-        "stage": "water",
-        "startYear": 1993,
-        "endYear": 2004
+        "endYear": 1988
       },
       {
         "stage": "built",
-        "startYear": 2005,
-        "endYear": 2020
+        "startYear": 1990,
+        "endYear": 1990
+      },
+      {
+        "stage": "vegetation",
+        "startYear": 1991,
+        "endYear": 1991
       },
       {
         "stage": "water",
-        "startYear": 2021,
-        "endYear": 2021
+        "startYear": 1992,
+        "endYear": 2005
       },
       {
         "stage": "bare",
-        "startYear": 2022,
+        "startYear": 2006,
+        "endYear": 2008
+      },
+      {
+        "stage": "built",
+        "startYear": 2009,
+        "endYear": 2012
+      },
+      {
+        "stage": "bare",
+        "startYear": 2013,
+        "endYear": 2014
+      },
+      {
+        "stage": "built",
+        "startYear": 2015,
         "endYear": 2026
       }
     ],
-    "latestStage": "bare",
-    "kind": "water-to-built",
-    "description": "Water 1993 to 2004, then built-up from 2005 with no separate bare-soil stage visible in the yearly record."
+    "latestStage": "built",
+    "kind": "fill-and-build",
+    "description": "Water 1992 to 2005, filled 2006 to 2008, built by 2009."
   },
   "risk": {
-    "score": 65,
+    "score": 69,
     "band": "High",
     "factors": [
       {
@@ -73,10 +88,10 @@
       {
         "id": "recency",
         "name": "How recently it was filled",
-        "points": 12,
+        "points": 16,
         "maxPoints": 20,
         "available": true,
-        "reason": "The water was filled or built over from about 2005, 21 years ago."
+        "reason": "The water was filled or built over from about 2006, 20 years ago."
       },
       {
         "id": "distance",
@@ -130,20 +145,20 @@
       "distanceToCurrentWaterM": 0
     },
     "transition": {
-      "kind": "water-to-built",
+      "kind": "fill-and-build",
       "humanFillingLikely": true,
-      "waterFromYear": 1993,
-      "waterUntilYear": 2004,
-      "filledFromYear": null,
-      "builtFromYear": 2005,
-      "latestStage": "bare"
+      "waterFromYear": 1992,
+      "waterUntilYear": 2005,
+      "filledFromYear": 2006,
+      "builtFromYear": 2009,
+      "latestStage": "built"
     },
     "elevation": {
       "relativeElevationM": -0.3,
       "isLocalDepression": false
     },
     "risk": {
-      "score": 65,
+      "score": 69,
       "maxScore": 100,
       "band": "High",
       "topFactors": [
@@ -154,7 +169,7 @@
         },
         {
           "name": "How recently it was filled",
-          "points": 12,
+          "points": 16,
           "maxPoints": 20
         },
         {
@@ -172,7 +187,7 @@
     }
   },
   "summary": {
-    "text": "Satellite records show water in this zone in 17 of 33 observed years, between 1990 and 2021, and it was mostly seasonal water at a peak of 86% of the zone. Water was present until 2004 and the zone was built-up from 2005. The zone sits about 0.3 m below its surroundings within 1 km. The screening risk score is 65 out of 100, which is High. This is a screening result from satellite data, so verify it against official land records before deciding.",
+    "text": "Satellite records show water in this zone in 17 of 33 observed years, between 1990 and 2021, and it was mostly seasonal water at a peak of 86% of the zone. The land-cover record shows water until 2005, bare or filled ground from 2006, and built-up land from 2009, which matches a fill-and-build pattern. The zone sits about 0.3 m below its surroundings within 1 km. The screening risk score is 69 out of 100, which is High. This is a screening result from satellite data, so verify it against official land records before deciding.",
     "source": "template",
     "fallbackReason": "ANTHROPIC_API_KEY is not set",
     "model": null

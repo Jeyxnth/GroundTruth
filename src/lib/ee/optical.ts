@@ -53,7 +53,10 @@ const OLI_TO_ETM_INTERCEPT = [0.0003, 0.0088, 0.0061, 0.0412, 0.0254, 0.0172];
 const LS_ETM_BANDS = ["SR_B1", "SR_B2", "SR_B3", "SR_B4", "SR_B5", "SR_B7"];
 const LS_OLI_BANDS = ["SR_B2", "SR_B3", "SR_B4", "SR_B5", "SR_B6", "SR_B7"];
 
-function landsatCollection(ee: EE, region: EEAny, year: number, season: SeasonWindow): EEAny {
+/** `etm` = Landsat 5 TM + 7 ETM+ (the sensors of the 1985 to 2016 record); `oli` = Landsat 8/9; `all` = every Landsat. */
+export type LandsatSubset = "all" | "etm" | "oli";
+
+function landsatCollection(ee: EE, region: EEAny, year: number, season: SeasonWindow, subset: LandsatSubset = "all"): EEAny {
   const { start, end } = seasonDates(ee, year, season);
   const prep = (src: string[], oli: boolean) => (img: EEAny) => {
     // QA_PIXEL bits 1..4: dilated cloud, cirrus, cloud, cloud shadow
@@ -64,10 +67,9 @@ function landsatCollection(ee: EE, region: EEAny, year: number, season: SeasonWi
   };
   const col = (id: string, src: string[], oli: boolean) =>
     ee.ImageCollection(id).filterBounds(region).filterDate(start, end).map(prep(src, oli));
-  return col("LANDSAT/LT05/C02/T1_L2", LS_ETM_BANDS, false)
-    .merge(col("LANDSAT/LE07/C02/T1_L2", LS_ETM_BANDS, false))
-    .merge(col("LANDSAT/LC08/C02/T1_L2", LS_OLI_BANDS, true))
-    .merge(col("LANDSAT/LC09/C02/T1_L2", LS_OLI_BANDS, true));
+  const etm = () => col("LANDSAT/LT05/C02/T1_L2", LS_ETM_BANDS, false).merge(col("LANDSAT/LE07/C02/T1_L2", LS_ETM_BANDS, false));
+  const oli = () => col("LANDSAT/LC08/C02/T1_L2", LS_OLI_BANDS, true).merge(col("LANDSAT/LC09/C02/T1_L2", LS_OLI_BANDS, true));
+  return subset === "etm" ? etm() : subset === "oli" ? oli() : etm().merge(oli());
 }
 
 function sentinel2Collection(ee: EE, region: EEAny, year: number, season: SeasonWindow): EEAny {
@@ -96,13 +98,20 @@ export interface Composite {
 }
 
 /** One cloud-masked median composite for the season of `year`, at a 30 m grid for both sensors. */
-export function buildComposite(ee: EE, sensor: Sensor, region: EEAny, year: number, season: SeasonWindow): Composite {
+export function buildComposite(
+  ee: EE,
+  sensor: Sensor,
+  region: EEAny,
+  year: number,
+  season: SeasonWindow,
+  landsatSubset: LandsatSubset = "all",
+): Composite {
   // A fully masked image carrying the six bands: keeps the composite well-formed when a year has no scenes.
   const blank = ee.ImageCollection([
     ee.Image.constant([0, 0, 0, 0, 0, 0]).rename([...COMMON_BANDS]).updateMask(ee.Image.constant(0)),
   ]);
   if (sensor === "landsat") {
-    const col = landsatCollection(ee, region, year, season);
+    const col = landsatCollection(ee, region, year, season, landsatSubset);
     return { image: col.merge(blank).median(), scenes: col.size() };
   }
   const col = sentinel2Collection(ee, region, year, season);
@@ -137,14 +146,35 @@ export type Method = "random-forest" | "threshold-baseline";
  * Plain threshold rules (the ML baseline). Used only when no trained classifier asset is configured.
  * Output band `cls`: 0 water, 1 vegetation, 2 bare, 3 built.
  */
-export function classifyBaseline(ee: EE, features: EEAny): EEAny {
+export interface BaselineThresholds {
+  /** water when MNDWI is above this */
+  waterMndwi: number;
+  /** vegetation when NDVI is at least this */
+  vegNdvi: number;
+  /** built-up when NDBI is above this ... */
+  builtNdbi: number;
+  /** ... and NDVI is below this */
+  builtNdvi: number;
+}
+
+export const BASELINE: BaselineThresholds = { waterMndwi: 0.1, vegNdvi: 0.3, builtNdbi: 0.05, builtNdvi: 0.2 };
+
+/** JS twin of classifyBaseline, for evaluating the baseline on sampled rows. Precedence: water > vegetation > built > bare. */
+export function baselineClassJs(f: { mndwi: number; ndvi: number; ndbi: number }, t: BaselineThresholds = BASELINE): number {
+  if (f.mndwi > t.waterMndwi) return 0;
+  if (f.ndvi >= t.vegNdvi) return 1;
+  if (f.ndbi > t.builtNdbi && f.ndvi < t.builtNdvi) return 3;
+  return 2;
+}
+
+export function classifyBaseline(ee: EE, features: EEAny, t: BaselineThresholds = BASELINE): EEAny {
   const mndwi = features.select("mndwi");
   const ndvi = features.select("ndvi");
   const ndbi = features.select("ndbi");
   const cls = ee.Image.constant(2) // default: bare / filled soil
-    .where(ndbi.gt(0.05).and(ndvi.lt(0.2)), 3) // built-up
-    .where(ndvi.gte(0.3), 1) // vegetation / wetland
-    .where(mndwi.gt(0.1), 0); // water
+    .where(ndbi.gt(t.builtNdbi).and(ndvi.lt(t.builtNdvi)), 3) // built-up
+    .where(ndvi.gte(t.vegNdvi), 1) // vegetation / wetland
+    .where(mndwi.gt(t.waterMndwi), 0); // water
   return cls.rename("cls").updateMask(features.select("blue").mask());
 }
 

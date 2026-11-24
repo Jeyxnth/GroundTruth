@@ -7,17 +7,19 @@ Fixtures for the end-to-end tests and the "Try an example" chips. They live in `
 **Honest limits.**
 - The sources below document wetland and lake loss in the *area*. None of them pins the exact coordinate, so the per-site claim rests on the satellite record (JRC and the land-cover timeline), not on the article. The article is context, not proof for that pixel.
 - JRC and Landsat start in 1984. Lakes filled before that cannot be shown.
-- Land-cover stages currently come from the interim threshold classifier. They will be re-checked after the Random Forest lands (phase 3); a site that no longer shows the expected signature will be replaced, not forced.
-- Bengaluru is missing: the scan found no clean Bengaluru patch that is both water-then-gone and built-up today at 30 m. A fifth demo site will be added if one turns up after the Random Forest is in.
+- Land-cover stages come from the trained Random Forest (see docs/ml-results.md for its accuracy, which is measured against Dynamic World, not the ground). All four sites still show the water-to-land change after switching from the interim threshold rules, so none was replaced.
+- Bengaluru is missing: the scan found no clean Bengaluru patch that is both water-then-gone and built-up today at 30 m. A fifth demo site can be added if one turns up.
 
 ## Demo sites (built on former water)
 
-| Site | Coordinates | What the satellite record shows (JRC water years) |
-| --- | --- | --- |
-| Perungudi, near Pallikaranai Marsh, Chennai | 12.9413, 80.2179 | Seasonal marsh water, wet years 1988 to 1996 and again in the 2021 flood year. Edge of a marsh, so a messier story than the others. |
-| Rajarhat (New Town), Kolkata | 22.6060, 88.5297 | 16 water years between 1987 and 2004, none since. |
-| Ulwe, Navi Mumbai | 18.9777, 73.0260 | Water 1993 to 2004, built-up from 2005 (Landsat timeline). Clearest example. |
-| Kottur Sitaiah Nagar, Allapur (Kukatpally), Hyderabad | 17.4612, 78.4149 | 23 water years from 1988 to 2019, mostly gone by 2007, dense built-up land (91% built) in the latest year. |
+Results below are from the app's own pipeline with the trained Random Forest (method `random-forest`), checked on 2026-11-24.
+
+| Site | Coordinates | What the pipeline reports | Risk |
+| --- | --- | --- | --- |
+| Ulwe, Navi Mumbai | 18.9777, 73.0260 | **Fill-and-build:** water 1992 to 2005, filled 2006 to 2008, built by 2009. The clearest example. | 69 High |
+| Perungudi, near Pallikaranai Marsh, Chennai | 12.9413, 80.2179 | Water 1988 to 1994, then built-up from 1995 (no separate bare stage visible). Seasonal marsh water again in the 2021 flood year. | 58 High |
+| Rajarhat (New Town), Kolkata | 22.6060, 88.5297 | Water 1988 to 2003, then built-up from 2004 (no separate bare stage visible). | 53 Moderate |
+| Kottur Sitaiah Nagar, Allapur (Kukatpally), Hyderabad | 17.4612, 78.4149 | Water 1988 to 2008, then vegetation from 2009, then built-up from 2013. **A deliberate edge case:** the detector calls the vegetation stage natural-looking succession, so it does not flag it as filling, but it reports the later build-up. | 73 High |
 
 ### Sources
 

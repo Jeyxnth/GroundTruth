@@ -34,7 +34,7 @@ All routes return `{ ok: true, data, meta: { lat, lng, radiusM, notes[], generat
 
 Risk score, transition detection and facts assembly are pure functions in `src/lib/analysis/` (`risk.ts` holds all weights in one `RISK_CONFIG`). Results are cached in-process and in the Next.js data cache; errors are never cached.
 
-Land cover currently uses interim threshold rules until the trained Random Forest asset is configured (`GEE_CLASSIFIER_ASSET`); the response says which method produced it.
+Land cover uses the trained Random Forest when `GEE_CLASSIFIER_ASSET` is set (see `docs/ml-results.md` for method and measured accuracy); otherwise it falls back to threshold rules, and the response says which method produced it. `pnpm ml:train` retrains and saves the asset; `pnpm ml:report` re-renders the results doc from saved numbers.
 
 ## Earth Engine credentials
 
@@ -47,6 +47,7 @@ Land cover currently uses interim threshold rules until the trained Random Fores
 7. **Base64-encode it** and put it in `.env.local`:
    - PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\key.json"))`
    - bash: `base64 -w0 key.json`
-8. Copy `.env.example` to `.env.local`, set `GEE_SERVICE_ACCOUNT_KEY_B64` and `GEE_PROJECT_ID`, then run `pnpm ee:check`.
+8. **Asset root (needed from phase 3, to save the trained classifier):** open https://code.earthengine.google.com, select this Cloud project, open the *Assets* tab and create the project's asset root folder if it offers to. `pnpm ee:check` then reports `✓ Asset root exists`. If it still says it cannot access the root, confirm the service account has *Earth Engine Resource Writer* (or share the root folder with its email as Writer).
+9. Copy `.env.example` to `.env.local`, set `GEE_SERVICE_ACCOUNT_KEY_B64` and `GEE_PROJECT_ID`, then run `pnpm ee:check`.
 
 Never commit `.env.local` or the key file.

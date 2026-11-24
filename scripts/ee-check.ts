@@ -68,6 +68,20 @@ async function main() {
     fail([`Initialized, but a test query failed: ${e instanceof Error ? e.message : String(e)}`]);
   }
 
+  // Asset root: needed from phase 3 on (saving the trained classifier). A warning, not a failure.
+  const root = `projects/${env.GEE_PROJECT_ID}/assets`;
+  const rootOk = await new Promise<boolean>((resolve) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (ee as any).data.getAsset(root, (a: unknown, err?: unknown) => resolve(!err && !!a)),
+  );
+  if (rootOk) console.log(`✓ Asset root exists: ${root}`);
+  else {
+    console.log(`⚠ Cannot access asset root ${root}.`);
+    console.log("  Needed to save the trained classifier (phase 3). Create the root folder in the Code Editor");
+    console.log("  (Assets tab, with this project selected) and make sure the service account has the");
+    console.log("  'Earth Engine Resource Writer' role. See README → 'Earth Engine credentials'.");
+  }
+
   console.log("\n✓ Earth Engine credentials work.\n");
 }
 

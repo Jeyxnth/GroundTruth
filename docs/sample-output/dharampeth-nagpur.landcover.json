@@ -1,8 +1,8 @@
 {
   "ok": true,
   "data": {
-    "method": "threshold-baseline",
-    "methodNote": "Interim threshold rules (MNDWI/NDVI/NDBI). The trained Random Forest is not configured yet, so built-up versus bare soil is approximate.",
+    "method": "random-forest",
+    "methodNote": "Random Forest trained in Earth Engine on Dynamic World labels (see docs/ml-results.md).",
     "season": {
       "startMonth": 1,
       "endMonth": 3,
@@ -46,9 +46,9 @@
         "scenes": 2,
         "shares": {
           "water": 0,
-          "vegetation": 0.31193264662997977,
-          "bare": 0.6069328818023612,
-          "built": 0.08113447156765909
+          "vegetation": 0.04364799397958703,
+          "bare": 0.011993791449132212,
+          "built": 0.9443582145712808
         },
         "gapReason": null
       },
@@ -60,9 +60,9 @@
         "scenes": 1,
         "shares": {
           "water": 0,
-          "vegetation": 0.019660411081322604,
-          "bare": 0.8624241569070129,
-          "built": 0.11791543201166452
+          "vegetation": 0,
+          "bare": 0.09839612435915525,
+          "built": 0.9016038756408448
         },
         "gapReason": null
       },
@@ -74,9 +74,9 @@
         "scenes": 4,
         "shares": {
           "water": 0,
-          "vegetation": 0.23601900192841355,
-          "bare": 0.6892902497530691,
-          "built": 0.07469074831851746
+          "vegetation": 0.009642067635576873,
+          "bare": 0.046752269413480055,
+          "built": 0.9436056629509431
         },
         "gapReason": null
       },
@@ -88,9 +88,9 @@
         "scenes": 2,
         "shares": {
           "water": 0,
-          "vegetation": 0.3246319552231786,
-          "bare": 0.6016179859837261,
-          "built": 0.07375005879309533
+          "vegetation": 0.019660411081322608,
+          "bare": 0.011993791449132212,
+          "built": 0.9683457974695452
         },
         "gapReason": null
       },
@@ -102,9 +102,9 @@
         "scenes": 3,
         "shares": {
           "water": 0,
-          "vegetation": 0.010018343445745731,
-          "bare": 0.97620055500682,
-          "built": 0.013781101547434267
+          "vegetation": 0,
+          "bare": 0.12675791355063257,
+          "built": 0.8732420864493675
         },
         "gapReason": null
       },
@@ -116,9 +116,9 @@
         "scenes": 5,
         "shares": {
           "water": 0,
-          "vegetation": 0.04327171816941817,
-          "bare": 0.9420064907577254,
-          "built": 0.014721791072856398
+          "vegetation": 0,
+          "bare": 0.055453647523634804,
+          "built": 0.9445463524763652
         },
         "gapReason": null
       },
@@ -130,9 +130,9 @@
         "scenes": 5,
         "shares": {
           "water": 0,
-          "vegetation": 0.16447956352006016,
-          "bare": 0.80960444005456,
-          "built": 0.025915996425379798
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -144,9 +144,9 @@
         "scenes": 4,
         "shares": {
           "water": 0,
-          "vegetation": 0.5303607544329996,
-          "bare": 0.4122101500399793,
-          "built": 0.057429095527021294
+          "vegetation": 0.04891585532195098,
+          "bare": 0,
+          "built": 0.951084144678049
         },
         "gapReason": null
       },
@@ -167,9 +167,9 @@
         "scenes": 5,
         "shares": {
           "water": 0,
-          "vegetation": 0.1394572221438314,
-          "bare": 0.7898969944969664,
-          "built": 0.07064578335920228
+          "vegetation": 0.009642067635576877,
+          "bare": 0,
+          "built": 0.9903579323644232
         },
         "gapReason": null
       },
@@ -181,9 +181,9 @@
         "scenes": 1,
         "shares": {
           "water": 0,
-          "vegetation": 0.5687879215464937,
-          "bare": 0.4052960820281266,
-          "built": 0.0259159964253798
+          "vegetation": 0.1618926673251493,
+          "bare": 0,
+          "built": 0.8381073326748507
         },
         "gapReason": null
       },
@@ -195,9 +195,9 @@
         "scenes": 3,
         "shares": {
           "water": 0,
-          "vegetation": 0.10164150322186159,
-          "bare": 0.8397065048680684,
-          "built": 0.058651991910070075
+          "vegetation": 0.009642067635576877,
+          "bare": 0,
+          "built": 0.9903579323644232
         },
         "gapReason": null
       },
@@ -209,9 +209,9 @@
         "scenes": 1,
         "shares": {
           "water": 0,
-          "vegetation": 0.28239499553172476,
-          "bare": 0.6079676402803255,
-          "built": 0.10963736418794977
+          "vegetation": 0.05361930294906165,
+          "bare": 0.01199379144913221,
+          "built": 0.9343869056018062
         },
         "gapReason": null
       },
@@ -224,8 +224,8 @@
         "shares": {
           "water": 0,
           "vegetation": 0,
-          "bare": 0.7738112036122478,
-          "built": 0.22618879638775216
+          "bare": 0.01199379144913221,
+          "built": 0.9880062085508677
         },
         "gapReason": null
       },
@@ -237,9 +237,9 @@
         "scenes": 1,
         "shares": {
           "water": 0,
-          "vegetation": 0.043647993979587026,
-          "bare": 0.8706081557781854,
-          "built": 0.08574385024222751
+          "vegetation": 0.019660411081322608,
+          "bare": 0.023987582898264425,
+          "built": 0.9563520060204129
         },
         "gapReason": null
       },
@@ -251,9 +251,9 @@
         "scenes": 2,
         "shares": {
           "water": 0,
-          "vegetation": 0.009642067635576878,
-          "bare": 0.9166078735713278,
-          "built": 0.07375005879309533
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -265,9 +265,9 @@
         "scenes": 4,
         "shares": {
           "water": 0,
-          "vegetation": 0.0055971026762617,
-          "bare": 0.9206528385306431,
-          "built": 0.07375005879309533
+          "vegetation": 0,
+          "bare": 0.016791308028785094,
+          "built": 0.9832086919712149
         },
         "gapReason": null
       },
@@ -279,9 +279,9 @@
         "scenes": 7,
         "shares": {
           "water": 0,
-          "vegetation": 0.2057758336860919,
-          "bare": 0.7595597573021023,
-          "built": 0.03466440901180565
+          "vegetation": 0.019660411081322608,
+          "bare": 0,
+          "built": 0.9803395889186773
         },
         "gapReason": null
       },
@@ -294,8 +294,8 @@
         "shares": {
           "water": 0,
           "vegetation": 0,
-          "bare": 0.7163350736089554,
-          "built": 0.2836649263910446
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -308,8 +308,8 @@
         "shares": {
           "water": 0,
           "vegetation": 0,
-          "bare": 0.9291190442594423,
-          "built": 0.07088095574055782
+          "bare": 0.004797516579652885,
+          "built": 0.995202483420347
         },
         "gapReason": null
       },
@@ -322,8 +322,8 @@
         "shares": {
           "water": 0,
           "vegetation": 0,
-          "bare": 0.8731480174968251,
-          "built": 0.12685198250317486
+          "bare": 0.04797516579652884,
+          "built": 0.9520248342034712
         },
         "gapReason": null
       },
@@ -336,8 +336,8 @@
         "shares": {
           "water": 0,
           "vegetation": 0,
-          "bare": 0.9413480080899299,
-          "built": 0.058651991910070075
+          "bare": 0.013498894689807625,
+          "built": 0.9865011053101924
         },
         "gapReason": null
       },
@@ -349,9 +349,9 @@
         "scenes": 6,
         "shares": {
           "water": 0,
-          "vegetation": 0.37679318940783596,
-          "bare": 0.5765486101312263,
-          "built": 0.04665820046093786
+          "vegetation": 0.01199379144913221,
+          "bare": 0,
+          "built": 0.9880062085508677
         },
         "gapReason": null
       },
@@ -364,8 +364,8 @@
         "shares": {
           "water": 0,
           "vegetation": 0,
-          "bare": 0.9402191806594233,
-          "built": 0.059780819340576635
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -377,9 +377,9 @@
         "scenes": 5,
         "shares": {
           "water": 0,
-          "vegetation": 0.01199379144913221,
-          "bare": 0.9622313155543012,
-          "built": 0.025774892996566472
+          "vegetation": 0,
+          "bare": 0.057005785240581336,
+          "built": 0.9429942147594187
         },
         "gapReason": null
       },
@@ -391,9 +391,9 @@
         "scenes": 3,
         "shares": {
           "water": 0,
-          "vegetation": 0.0857438502422275,
-          "bare": 0.8638822256714171,
-          "built": 0.050373924086355264
+          "vegetation": 0,
+          "bare": 0.025351582710126518,
+          "built": 0.9746484172898735
         },
         "gapReason": null
       },
@@ -405,9 +405,9 @@
         "scenes": 11,
         "shares": {
           "water": 0,
-          "vegetation": 0.5856262640515498,
-          "bare": 0.4143737359484503,
-          "built": 0
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -419,9 +419,9 @@
         "scenes": 10,
         "shares": {
           "water": 0,
-          "vegetation": 0.4194064249094586,
-          "bare": 0.5805935750905413,
-          "built": 0
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -433,9 +433,9 @@
         "scenes": 11,
         "shares": {
           "water": 0,
-          "vegetation": 0.13084991298621887,
-          "bare": 0.8691500870137812,
-          "built": 0
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -447,9 +447,9 @@
         "scenes": 5,
         "shares": {
           "water": 0,
-          "vegetation": 0.18145900945392973,
-          "bare": 0.6118715018108273,
-          "built": 0.20666948873524288
+          "vegetation": 0.03838013263722309,
+          "bare": 0.025633789567753168,
+          "built": 0.9359860777950236
         },
         "gapReason": null
       },
@@ -461,9 +461,9 @@
         "scenes": 9,
         "shares": {
           "water": 0,
-          "vegetation": 0.11231832933540284,
-          "bare": 0.6231127416396218,
-          "built": 0.2645689290249753
+          "vegetation": 0,
+          "bare": 0.011993791449132216,
+          "built": 0.9880062085508677
         },
         "gapReason": null
       },
@@ -475,9 +475,9 @@
         "scenes": 18,
         "shares": {
           "water": 0,
-          "vegetation": 0.2003668689149146,
-          "bare": 0.6283806029819858,
-          "built": 0.17125252810309957
+          "vegetation": 0,
+          "bare": 0.023987582898264432,
+          "built": 0.9760124171017356
         },
         "gapReason": null
       },
@@ -489,9 +489,9 @@
         "scenes": 18,
         "shares": {
           "water": 0,
-          "vegetation": 0.2695545835097126,
-          "bare": 0.5590517849583745,
-          "built": 0.1713936315319129
+          "vegetation": 0,
+          "bare": 0.011993791449132216,
+          "built": 0.9880062085508677
         },
         "gapReason": null
       },
@@ -503,9 +503,9 @@
         "scenes": 18,
         "shares": {
           "water": 0,
-          "vegetation": 0.2950002351723814,
-          "bare": 0.6012417101735571,
-          "built": 0.10375805465406142
+          "vegetation": 0.011993791449132216,
+          "bare": 0.011993791449132216,
+          "built": 0.9760124171017356
         },
         "gapReason": null
       },
@@ -517,9 +517,9 @@
         "scenes": 18,
         "shares": {
           "water": 0,
-          "vegetation": 0.3649875358637882,
-          "bare": 0.5109355157330322,
-          "built": 0.12407694840317952
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -531,9 +531,9 @@
         "scenes": 18,
         "shares": {
           "water": 0,
-          "vegetation": 0.3830958092281643,
-          "bare": 0.4985184139974601,
-          "built": 0.11838577677437563
+          "vegetation": 0.011993791449132216,
+          "bare": 0,
+          "built": 0.9880062085508677
         },
         "gapReason": null
       },
@@ -545,9 +545,9 @@
         "scenes": 18,
         "shares": {
           "water": 0,
-          "vegetation": 0.20906824702506943,
-          "bare": 0.6081557781854099,
-          "built": 0.18277597478952073
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -559,9 +559,9 @@
         "scenes": 19,
         "shares": {
           "water": 0,
-          "vegetation": 0.32072809369267674,
-          "bare": 0.4968251728517003,
-          "built": 0.18244673345562296
+          "vegetation": 0,
+          "bare": 0,
+          "built": 1
         },
         "gapReason": null
       },
@@ -573,9 +573,9 @@
         "scenes": 23,
         "shares": {
           "water": 0,
-          "vegetation": 0.19397018014204415,
-          "bare": 0.5955035040684823,
-          "built": 0.2105263157894737
+          "vegetation": 0.033629650533841315,
+          "bare": 0,
+          "built": 0.9663703494661587
         },
         "gapReason": null
       }
@@ -592,7 +592,7 @@
     "notes": [
       "4 year(s) have no cloud-free imagery and are shown as gaps, not interpolated."
     ],
-    "generatedAt": "2026-11-24T11:29:30.674Z",
+    "generatedAt": "2026-11-24T14:06:07.438Z",
     "lat": 21.14,
     "lng": 79.065,
     "radiusM": 150

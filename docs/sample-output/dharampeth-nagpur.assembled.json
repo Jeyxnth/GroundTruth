@@ -21,22 +21,12 @@
     "kind": "none",
     "runs": [
       {
-        "stage": "bare",
+        "stage": "built",
         "startYear": 1988,
-        "endYear": 1995
-      },
-      {
-        "stage": "vegetation",
-        "startYear": 1997,
-        "endYear": 1997
-      },
-      {
-        "stage": "bare",
-        "startYear": 1998,
         "endYear": 2026
       }
     ],
-    "latestStage": "bare",
+    "latestStage": "built",
     "description": "No sustained water period was detected in the land-cover record, so no water-to-land change applies."
   },
   "risk": {
@@ -125,7 +115,7 @@
       "waterUntilYear": null,
       "filledFromYear": null,
       "builtFromYear": null,
-      "latestStage": "bare"
+      "latestStage": "built"
     },
     "elevation": {
       "relativeElevationM": 2.4,
