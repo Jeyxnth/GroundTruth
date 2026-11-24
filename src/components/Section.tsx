@@ -18,6 +18,7 @@ export function SectionCard<T>({
   action,
   className = "",
   loadingContent,
+  titleClass = "text-3xl sm:text-4xl",
 }: {
   id: string;
   title: string;
@@ -29,6 +30,7 @@ export function SectionCard<T>({
   className?: string;
   /** Replaces the grey skeleton while loading (for example the wait panel). */
   loadingContent?: ReactNode;
+  titleClass?: string;
 }) {
   const headingId = `${id}-title`;
   return (
@@ -40,7 +42,7 @@ export function SectionCard<T>({
       data-status={section.status}
     >
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 id={headingId} className="text-2xl">
+        <h2 id={headingId} className={titleClass}>
           {title}
         </h2>
         {action}

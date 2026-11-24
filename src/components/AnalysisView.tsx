@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ElevationCard } from "@/components/ElevationCard";
 import { ImageryPanel } from "@/components/ImageryPanel";
-import { MapPanel } from "@/components/MapPanel";
+import { LazyMap, MapPanel } from "@/components/MapPanel";
 import { NextSteps } from "@/components/NextSteps";
+import { Reveal } from "@/components/Reveal";
 import { FactorList, Verdict } from "@/components/RiskCard";
 import { SearchBox } from "@/components/SearchBox";
 import { SectionCard } from "@/components/Section";
@@ -14,10 +15,11 @@ import { SummaryCard } from "@/components/SummaryCard";
 import { TimelineChart } from "@/components/TimelineChart";
 import { WaitPanel } from "@/components/WaitPanel";
 import { WaterHistoryCard } from "@/components/WaterHistoryCard";
-import type { RiskResult } from "@/lib/analysis/risk";
+import type { RiskBand, RiskResult } from "@/lib/analysis/risk";
 import { useAnalysis, type Zone } from "@/lib/client/useAnalysis";
+import { useInView } from "@/lib/client/useInView";
 import type { Section } from "@/lib/client/useSection";
-import { DISCLAIMER, ENTRY, MY_LOCATION_LABEL } from "@/lib/copy";
+import { DISCLAIMER, ENTRY, MY_LOCATION_LABEL, describeTransition } from "@/lib/copy";
 import { formatCoords, round4, zoneUrl } from "@/lib/geometry";
 
 export { DISCLAIMER };
@@ -31,11 +33,30 @@ function derived<T>(value: T | null): Section<T> {
 /** Notes about missing years are shown once, inside the chart that has the gaps. The rest are shown here. */
 const isGapNote = (n: string) => /year\(s\)/.test(n);
 
+const BAND_VAR: Record<RiskBand, string> = { Low: "var(--band-low)", Moderate: "var(--band-moderate)", High: "var(--band-high)" };
+
+function BandChip({ risk }: { risk: RiskResult }) {
+  return (
+    <>
+      <svg width="14" height="14" viewBox="0 0 28 28" aria-hidden="true" fill={BAND_VAR[risk.band]} className="shrink-0">
+        {risk.band === "Low" && <circle cx="14" cy="14" r="11" />}
+        {risk.band === "Moderate" && <path d="M14 3 26 25H2z" />}
+        {risk.band === "High" && <rect x="3" y="3" width="22" height="22" rx="2" />}
+      </svg>
+      <span className="truncate">{risk.band} risk</span>
+      <span className="text-muted">{risk.score}/100</span>
+    </>
+  );
+}
+
 export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze" | "report" }) {
   const report = mode === "report";
   const [zone, setZone] = useState<Zone>(initial);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [overlayOn, setOverlayOn] = useState(true);
   const a = useAnalysis(zone);
   const moveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const { ref: heroRef, inView: heroInView } = useInView<HTMLElement>({ once: false, rootMargin: "-56px 0px 0px 0px", threshold: 0.15 });
 
   // Keep the address bar a stable, shareable link to the current zone.
   useEffect(() => {
@@ -63,159 +84,211 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
   const overlay = a.imagery.status === "ok" ? a.imagery.data.overlay : null;
   const notes = a.notes.filter((n) => !isGapNote(n));
   const fromGps = zone.label === MY_LOCATION_LABEL;
+  const rs = (classes: string) => (report ? "" : classes);
 
-  // The printed report has no loading phase, so it keeps the section order but reserves no height.
-  const rs = (classes: string) => (report ? classes.split(" ").filter((c) => c.startsWith("order-")).join(" ") : classes);
-  const grid = report ? "flex flex-col gap-8" : "flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:items-start lg:gap-x-12";
-  const left = report ? "contents" : "contents lg:block lg:sticky lg:top-4 lg:space-y-8";
-  const right = report ? "contents" : "contents lg:block lg:space-y-8";
+  const verdict = (
+    <SectionCard
+      id="risk"
+      title="Land history check"
+      titleClass="text-2xl"
+      section={derived(risk)}
+      reserve={rs("min-h-[300px]")}
+      className="!border-t-0 !pt-0"
+      loadingContent={<WaitPanel parts={{ water: a.water.status, landcover: a.landcover.status, elevation: a.elevation.status, imagery: a.imagery.status }} />}
+    >
+      {(r) => <Verdict risk={r} />}
+    </SectionCard>
+  );
 
-  return (
-    <>
-      <SiteHeader />
-      <main id="main" className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6">
-        <header className="mb-8">
-          <nav className="no-print mb-4 flex flex-wrap items-center justify-end gap-2" aria-label="Page">
-            {report ? (
-              <>
-                <Link href={zoneUrl("/analyze", zone)} className="btn btn-ghost">
-                  Interactive view
-                </Link>
-                <button type="button" onClick={() => window.print()} className="btn btn-primary">
-                  Print / Save as PDF
-                </button>
-              </>
-            ) : (
-              <Link href={zoneUrl("/report", zone)} className="btn btn-primary" data-testid="open-report">
-                Open report
-              </Link>
-            )}
-          </nav>
+  const chapters: ReactNode = (
+    <div className={`mx-auto w-full max-w-5xl space-y-20 px-4 sm:px-6 ${report ? "py-8" : "py-16 sm:py-20"}`}>
+      <Reveal>
+        <SectionCard id="imagery" title="Then and now" section={a.imagery} reserve={rs("min-h-[640px] lg:min-h-[1000px]")} loadingContent={<div className="skeleton aspect-[3/2] w-full" />}>
+          {(d) => <ImageryPanel data={d} report={report} />}
+        </SectionCard>
+      </Reveal>
+
+      <Reveal>
+        <SectionCard id="timeline" title="When it changed" section={a.landcover} reserve={rs("min-h-[840px] lg:min-h-[700px]")}>
+          {(d) => (
+            <>
+              {a.transition && (
+                <p className="mb-5 font-display text-2xl leading-snug sm:text-3xl" data-testid="transition">
+                  {describeTransition(a.transition)}
+                </p>
+              )}
+              <TimelineChart landcover={d} water={a.water.status === "ok" ? a.water.data : null} transition={a.transition} />
+            </>
+          )}
+        </SectionCard>
+      </Reveal>
+
+      <Reveal>
+        <SectionCard id="water" title="How often it was water" section={a.water} reserve={rs("min-h-[640px] lg:min-h-[520px]")}>
+          {(d) => <WaterHistoryCard data={d} />}
+        </SectionCard>
+      </Reveal>
+
+      <Reveal>
+        <SectionCard id="elevation" title="How low it sits" section={a.elevation} reserve={rs("min-h-[420px] lg:min-h-[320px]")}>
+          {(d) => <ElevationCard data={d} />}
+        </SectionCard>
+      </Reveal>
+
+      <Reveal>
+        <SectionCard id="summary" title="In plain words" section={a.summary} reserve={rs("min-h-[380px] lg:min-h-[280px]")}>
+          {(s) => <SummaryCard data={s} />}
+        </SectionCard>
+      </Reveal>
+
+      <Reveal>
+        <NextSteps />
+      </Reveal>
+
+      <Reveal>
+        <section className="section border-t border-line pt-5" aria-labelledby="factors-title">
+          <h2 id="factors-title" className="sr-only">
+            How the score is built
+          </h2>
+          <div className="min-h-[64px]">{risk && <FactorList risk={risk} alwaysOpen={report} />}</div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="section border-t border-line pt-5" aria-labelledby="method-title">
+          <h2 id="method-title" className="text-3xl sm:text-4xl">
+            About this check
+          </h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 text-base text-muted">
+            <li>The zone is a circle of {zone.radiusM} m radius. Each square in the satellite images covers 10 to 30 m, so results describe the whole zone, not single buildings.</li>
+            <li>Water record: satellite water maps, 1984 to 2021. Land types: satellite images from January to March each year, cloud removed. Years with no clear image are shown striped, never guessed.</li>
+            <li>Land types are decided by a computer model checked against Google Dynamic World land maps, not against the ground.</li>
+            <li>Ground height: Copernicus elevation data compared with the land within 1 km.</li>
+            <li>The score adds six separate factors. Each one is shown with its points and reason.</li>
+            <li>Imagery: Esri, Maxar, Earthstar Geographics and the GIS User Community. Satellite water maps: European Commission Joint Research Centre and Google.</li>
+          </ul>
+          <p className="mt-4 font-medium">{DISCLAIMER}</p>
+        </section>
+      </Reveal>
+    </div>
+  );
+
+  const noteList = (notes.length > 0 || fromGps) && (
+    <div className="mx-auto w-full max-w-5xl space-y-2 px-4 pt-6 text-base sm:px-6">
+      {fromGps && (
+        <p role="note" className="rounded-lg border border-line px-3 py-2">
+          {ENTRY.locationAccuracy}
+        </p>
+      )}
+      {notes.map((n) => (
+        <p key={n} role="note" className="rounded-lg border border-line px-3 py-2">
+          {n}
+        </p>
+      ))}
+    </div>
+  );
+
+  if (report) {
+    return (
+      <>
+        <SiteHeader>
+          <Link href={zoneUrl("/analyze", zone)} className="btn btn-ghost">
+            Interactive view
+          </Link>
+          <button type="button" onClick={() => window.print()} className="btn btn-primary">
+            Print / Save as PDF
+          </button>
+        </SiteHeader>
+        <main id="main" className="mx-auto w-full max-w-5xl px-4 pb-16 pt-24 sm:px-6 print:pt-0">
           <p className="print-only font-display text-xl font-semibold">GroundTruth · Land history report</p>
           <h1 className="max-w-3xl text-4xl leading-[1.1] sm:text-5xl" data-testid="zone-title">
             {title}
           </h1>
           <p className="mt-2 text-base text-muted">
             <span className="font-mono" translate="no">{formatCoords(zone.lat, zone.lng)}</span> · zone of {zone.radiusM} m radius ·{" "}
-            <span suppressHydrationWarning>{report ? `generated ${new Date().toLocaleDateString("en-IN", { dateStyle: "long" })}` : "live satellite analysis"}</span>
+            <span suppressHydrationWarning>generated {new Date().toLocaleDateString("en-IN", { dateStyle: "long" })}</span>
           </p>
-          {!report && (
-            <details className="no-print mt-3 max-w-2xl">
-              <summary className="font-medium text-accent">Check another place</summary>
-              <div className="pb-2 pt-1">
-                <SearchBox compact onSelect={(p) => relocate(p.lat, p.lng, p.label)} />
-              </div>
-            </details>
-          )}
-          <p role="note" className="mt-4 max-w-3xl text-base text-muted" data-testid="disclaimer">
+          <p role="note" className="mt-4 text-base text-muted" data-testid="disclaimer">
             <strong className="text-foreground">Screening tool, not a legal opinion.</strong> Based on satellite data. Verify with official land records.
           </p>
-          {fromGps && (
-            <p role="note" className="mt-2 max-w-3xl text-base">
-              {ENTRY.locationAccuracy}
-            </p>
-          )}
-          {notes.length > 0 && (
-            <ul className="mt-3 max-w-3xl space-y-1 text-base" aria-label="Notes about this location">
-              {notes.map((n) => (
-                <li key={n} role="note" className="rounded-lg border border-line px-3 py-2">
-                  {n}
-                </li>
-              ))}
-            </ul>
-          )}
-        </header>
+          <div className="mt-8 rounded-2xl border border-line bg-surface p-5">{verdict}</div>
+          <div className="mt-8">
+            <MapPanel lat={zone.lat} lng={zone.lng} radiusM={zone.radiusM} interactive={false} overlay={overlay} overlayPending={a.imagery.status === "loading"} height={300} />
+          </div>
+        </main>
+        {noteList}
+        {chapters}
+      </>
+    );
+  }
 
-        <div className={grid}>
-          <div className={left}>
-            <SectionCard
-              id="risk"
-              title="Land history check"
-              section={derived(risk)}
-              reserve={rs("order-1 min-h-[300px]")}
-              className="!border-t-0 !pt-0"
-              loadingContent={
-                <WaitPanel
-                  parts={{
-                    water: a.water.status,
-                    landcover: a.landcover.status,
-                    elevation: a.elevation.status,
-                    imagery: a.imagery.status,
+  return (
+    <>
+      <SiteHeader overHero progress showChip={!heroInView} chip={risk ? <BandChip risk={risk} /> : undefined}>
+        <Link href={zoneUrl("/report", zone)} className="btn btn-header" data-testid="open-report">
+          <span className="sm:hidden">Report</span>
+          <span className="hidden sm:inline">Open report</span>
+        </Link>
+      </SiteHeader>
+
+      <main id="main">
+        <section ref={heroRef} id="hero" className="hero" aria-label="This place today">
+          <div className="absolute inset-0">
+            <LazyMap
+              lat={zone.lat}
+              lng={zone.lng}
+              radiusM={zone.radiusM}
+              interactive
+              overlay={overlay ? { tileUrl: overlay.tileUrl } : null}
+              showOverlay={overlayOn}
+              onMove={onMove}
+              zoom={16.4}
+              intro
+            />
+          </div>
+          <div className="hero-scrim-top" aria-hidden />
+
+          <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto w-full max-w-6xl px-4 pt-[calc(var(--header-h)+18px)] sm:px-6">
+            <h1 className="pointer-events-auto max-w-3xl text-4xl leading-[1.05] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] sm:text-6xl" data-testid="zone-title">
+              {title}
+            </h1>
+            <p className="mt-2 text-base text-white/85">
+              <span className="font-mono" translate="no">{formatCoords(zone.lat, zone.lng)}</span> · zone of {zone.radiusM} m radius
+            </p>
+            <p role="note" className="mt-1 text-base text-white/80" data-testid="disclaimer">
+              <strong className="text-white">Screening tool, not a legal opinion.</strong> Based on satellite data. Verify with official land records.
+            </p>
+            <div className="pointer-events-auto mt-3 flex flex-wrap gap-2">
+              <button type="button" className="btn btn-float" aria-expanded={searchOpen} onClick={() => setSearchOpen((v) => !v)}>
+                Check another place
+              </button>
+              <button type="button" className="btn btn-float" aria-pressed={overlayOn} disabled={!overlay} onClick={() => setOverlayOn((v) => !v)}>
+                {overlay ? (overlayOn ? "Water record: on" : "Water record: off") : "Water record loading…"}
+              </button>
+            </div>
+            {searchOpen && (
+              <div className="pointer-events-auto mt-3 max-w-xl rounded-xl bg-surface p-3 text-foreground shadow-2xl fade-in">
+                <SearchBox
+                  compact
+                  onSelect={(p) => {
+                    relocate(p.lat, p.lng, p.label);
+                    setSearchOpen(false);
                   }}
                 />
-              }
-            >
-              {(r) => <Verdict risk={r} />}
-            </SectionCard>
-
-            <div className="order-5">
-              <MapPanel
-                lat={zone.lat}
-                lng={zone.lng}
-                radiusM={zone.radiusM}
-                interactive={!report}
-                overlay={overlay}
-                overlayPending={a.imagery.status === "loading"}
-                onMove={onMove}
-                height={report ? 300 : 340}
-              />
-            </div>
+              </div>
+            )}
           </div>
 
-          <div className={right}>
-            <SectionCard
-              id="imagery"
-              title="Satellite pictures"
-              section={a.imagery}
-              reserve={rs("order-2 min-h-[790px] lg:min-h-[960px]")}
-              className="lg:!border-t-0 lg:!pt-0"
-              loadingContent={<div className="skeleton aspect-square w-full max-w-xl" />}
-            >
-              {(d) => <ImageryPanel data={d} report={report} />}
-            </SectionCard>
-
-            <div className="order-3">
-              <NextSteps />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 lg:bottom-6 lg:left-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] lg:right-auto lg:w-[28rem]">
+            <div className="hero-sheet sheet-in pointer-events-auto rounded-t-2xl p-5 pb-6 lg:rounded-2xl">
+              {verdict}
+              <p className="mt-3 text-sm text-muted">Tap the map or drag the pin to check another spot. Imagery © Esri, Maxar, Earthstar Geographics. Water record: EC JRC and Google.</p>
             </div>
-
-            <SectionCard id="summary" title="Summary" section={a.summary} reserve={rs("order-4 min-h-[400px] lg:min-h-[280px]")}>
-              {(s) => <SummaryCard data={s} />}
-            </SectionCard>
-
-            <SectionCard id="timeline" title="What was on the land each year" section={a.landcover} reserve={rs("order-6 min-h-[800px] lg:min-h-[650px]")}>
-              {(d) => <TimelineChart landcover={d} water={a.water.status === "ok" ? a.water.data : null} transition={a.transition} />}
-            </SectionCard>
-
-            <SectionCard id="water" title="Water record" section={a.water} reserve={rs("order-7 min-h-[620px] lg:min-h-[500px]")}>
-              {(d) => <WaterHistoryCard data={d} />}
-            </SectionCard>
-
-            <SectionCard id="elevation" title="Ground height" section={a.elevation} reserve={rs("order-8 min-h-[390px] lg:min-h-[290px]")}>
-              {(d) => <ElevationCard data={d} />}
-            </SectionCard>
-
-            <section className="section order-9 min-h-[64px] border-t border-line pt-5" aria-labelledby="factors-title">
-              <h2 id="factors-title" className="sr-only">
-                How the score is built
-              </h2>
-              {risk && <FactorList risk={risk} alwaysOpen={report} />}
-            </section>
-
-            <section className="section order-10 border-t border-line pt-5" aria-labelledby="method-title">
-              <h2 id="method-title" className="text-2xl">
-                About this check
-              </h2>
-              <ul className="mt-3 list-disc space-y-2 pl-5 text-base text-muted">
-                <li>The zone is a circle of {zone.radiusM} m radius. Each square in the satellite images covers 10 to 30 m, so results describe the whole zone, not single buildings.</li>
-                <li>Water record: satellite water maps, 1984 to 2021. Land types: satellite images from January to March each year, cloud removed. Years with no clear image are shown striped, never guessed.</li>
-                <li>Land types are decided by a computer model checked against Google Dynamic World land maps, not against the ground.</li>
-                <li>Ground height: Copernicus elevation data compared with the land within 1 km.</li>
-                <li>The score adds six separate factors. Each one is shown with its points and reason.</li>
-              </ul>
-              <p className="mt-4 font-medium">{DISCLAIMER}</p>
-            </section>
           </div>
-        </div>
+        </section>
+
+        {noteList}
+        {chapters}
       </main>
     </>
   );

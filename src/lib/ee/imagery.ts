@@ -16,9 +16,11 @@ import {
 
 /** Imagery is only shown for years where at least this share of the zone is cloud-free. */
 const IMAGERY_MIN_VALID = 0.8;
-// About 2x Sentinel-2 native resolution across the frame; the browser scales it smoothly, so Landsat reads as soft, not blocky.
-const FRAME_PIXELS = 132;
-const VIEW_RADIUS_FACTOR = 2.2; // frame shows ~2.2x the zone radius so the surroundings are visible
+// Frames are 3:2 (900 m by 600 m for the default zone). They are rendered large and smoothed (bicubic from the native grid),
+// so 30 m Landsat squares read as soft detail instead of hard blocks.
+const FRAME_W = 720;
+const FRAME_H = 480;
+const VIEW_RADIUS_FACTOR = 2; // the frame is 3 x 2 of this many zone radii, so the surroundings are visible
 
 export interface ImageryFrame {
   year: number;
@@ -38,6 +40,8 @@ export interface ImageryData {
   /** Years excluded for lack of cloud-free imagery. */
   skippedYears: number[];
   frameBounds: { west: number; south: number; east: number; north: number };
+  /** Diameter of the analysed zone as a share of the frame width (the page draws the ring crisply over the picture). */
+  ringFraction: number;
   note: string;
 }
 
@@ -71,7 +75,12 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
   const years = Array.from({ length: lastYear - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i);
   const point = ee.Geometry.Point([lng, lat]);
   const zone = point.buffer(radiusM);
-  const view = point.buffer(radiusM * VIEW_RADIUS_FACTOR).bounds();
+  // 3:2 rectangle around the point (Mercator keeps the pixel aspect equal to the ground aspect).
+  const R = radiusM * VIEW_RADIUS_FACTOR;
+  const dLat = R / 111_320;
+  const dLng = R / (111_320 * Math.cos((lat * Math.PI) / 180));
+  const frameBounds = { west: lng - 1.5 * dLng, south: lat - dLat, east: lng + 1.5 * dLng, north: lat + dLat };
+  const view = ee.Geometry.Rectangle([frameBounds.west, frameBounds.south, frameBounds.east, frameBounds.north]);
 
   const [landsat, s2] = await Promise.all([
     coverage("landsat", years, zone, season),
@@ -82,18 +91,19 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
   const usable = plan.filter((p): p is { year: number; sensor: Sensor; valid: number; fellBack: boolean } => p.sensor !== null);
   const skippedYears = plan.filter((p) => p.sensor === null).map((p) => p.year);
 
-  const outline = ee.FeatureCollection([ee.Feature(point.buffer(radiusM, 0.5))]).style({ color: "FFFFFF", fillColor: "00000000", width: 2 });
   const visualised = (year: number, sensor: Sensor) => {
-    // Native Sentinel-2 resolution (10 m), no resampling: bicubic resampling of composites flattens them.
+    // Pin the composite to its native grid first (a composite has no fixed projection, and resampling one without that
+    // flattens it), then resample bicubically so enlarging gives smooth detail instead of hard squares.
     const { image } = buildComposite(ee, sensor, zone, year, season, "all", { native: true });
     return image
-      .visualize({ bands: ["red", "green", "blue"], min: 0.02, max: 0.28, gamma: 1.2 })
-      .blend(outline);
+      .reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 })
+      .resample("bicubic")
+      .visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.24, gamma: 1.15 });
   };
 
   const frames = await mapPool(usable, 8, async (u): Promise<ImageryFrame> => {
     const url = await getUrl<string>(
-      (cb) => visualised(u.year, u.sensor).getThumbURL({ region: view, dimensions: FRAME_PIXELS, format: "jpg" }, cb as any),
+      (cb) => visualised(u.year, u.sensor).getThumbURL({ region: view, dimensions: `${FRAME_W}x${FRAME_H}`, format: "jpg" }, cb as any),
       `thumbnail ${u.year}`,
     );
     return { year: u.year, sensor: u.sensor, url };
@@ -105,18 +115,13 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
     try {
       const col = ee.ImageCollection(usable.map((u) => visualised(u.year, u.sensor)));
       gifUrl = await getUrl<string>(
-        (cb) => col.getVideoThumbURL({ region: view, dimensions: 264, framesPerSecond: 3, format: "gif" }, cb as any),
+        (cb) => col.getVideoThumbURL({ region: view, dimensions: "480x320", framesPerSecond: 3, format: "gif" }, cb as any),
         "time-lapse",
       );
     } catch (e) {
       gifError = e instanceof Error ? e.message : String(e);
     }
   }
-
-  const bounds = await evaluate<{ coordinates: number[][][] }>(view);
-  const ring = bounds.coordinates[0] ?? [];
-  const lngs = ring.map((p) => p[0] as number);
-  const lats = ring.map((p) => p[1] as number);
 
   return {
     season: { label: seasonLabel(season) },
@@ -126,8 +131,9 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
     gifUrl,
     gifError,
     skippedYears,
-    frameBounds: { west: Math.min(...lngs), south: Math.min(...lats), east: Math.max(...lngs), north: Math.max(...lats) },
-    note: `One cloud-masked median composite per year (${seasonLabel(season)}). Years with under ${Math.round(IMAGERY_MIN_VALID * 100)}% clear coverage are skipped, not filled in. Landsat frames are 30 m pixels and look soft when enlarged.`,
+    frameBounds,
+    ringFraction: (2 * radiusM) / (3 * R),
+    note: `One cloud-masked median composite per year (${seasonLabel(season)}). Years with under ${Math.round(IMAGERY_MIN_VALID * 100)}% clear coverage are skipped, not filled in. Landsat squares are 30 m, so older pictures are smooth but not sharp.`,
   };
 }
 

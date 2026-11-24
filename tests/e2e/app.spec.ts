@@ -158,7 +158,7 @@ test.describe("analysis against real data", () => {
     await waitForAllSections(page);
     await expect(page.getByTestId("risk-band")).toContainText("High");
     await expect(page.getByTestId("transition")).toContainText(/The images suggest water until about \d{4}, bare or filled ground from about \d{4}, and buildings from about \d{4}/);
-    await expect(page.getByTestId("transition")).toContainText(/off by a year or two/);
+    await expect(page.getByTestId("dating-note")).toContainText(/off by a year or two/);
     await expect(page.getByTestId("summary-text")).toContainText(/water/i);
     await expect(page.getByTestId("summary-text")).not.toContainText(/lake was filled/i);
   });

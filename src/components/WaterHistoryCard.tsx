@@ -1,5 +1,7 @@
 "use client";
 
+import { CountUp } from "@/components/CountUp";
+import { useInView } from "@/lib/client/useInView";
 import { useWidth } from "@/lib/client/useWidth";
 import type { WaterHistoryData } from "@/lib/ee/water";
 
@@ -10,7 +12,7 @@ const CLASS_TEXT = {
   mixed: "a mix of permanent and seasonal water",
 } as const;
 
-function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+function Stat({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <div className="border-t border-line pt-2">
       <dt className="text-base text-muted">{label}</dt>
@@ -23,6 +25,7 @@ function Stat({ label, value, hint }: { label: string; value: string; hint?: str
 /** The satellite water record: was it ever water, how often, and the year-by-year share of the zone. */
 export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
   const { ref, width } = useWidth<HTMLDivElement>();
+  const { ref: svgRef, inView } = useInView<SVGSVGElement>({ rootMargin: "0px 0px -12% 0px" });
   const s = data.summary;
   const yearly = data.yearly;
   const first = yearly[0]?.year ?? 1984;
@@ -56,8 +59,8 @@ export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
 
       <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-4 sm:grid-cols-4">
         <Stat label="Ever water?" value={s.everWater ? "Yes" : "No"} hint={`${Math.round(data.gsw.fractionEverWater * 100)}% of the zone, at some point`} />
-        <Stat label="Wettest year" value={`${Math.round(s.peakWaterFraction * 100)}%`} hint={s.peakYear ? `of the zone, in ${s.peakYear}` : undefined} />
-        <Stat label="How often it was water" value={`up to ${Math.round(data.gsw.occurrenceMax)}%`} hint="of the clear images" />
+        <Stat label="Wettest year" value={<CountUp value={Math.round(s.peakWaterFraction * 100)} suffix="%" />} hint={s.peakYear ? `of the zone, in ${s.peakYear}` : undefined} />
+        <Stat label="How often it was water" value={<>up to <CountUp value={Math.round(data.gsw.occurrenceMax)} suffix="%" /></>} hint="of the clear images" />
         <Stat
           label="Nearest water today"
           value={s.distanceToCurrentWaterM === null ? `over ${data.distanceSearchRadiusM / 1000} km` : s.distanceToCurrentWaterM === 0 ? "In the zone" : `${Math.round(s.distanceToCurrentWaterM)} m`}
@@ -65,7 +68,7 @@ export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
         />
       </dl>
 
-      <svg width={width} height={H} role="img" aria-labelledby="wh-title" className="mt-5 block max-w-full">
+      <svg ref={svgRef} width={width} height={H} role="img" aria-labelledby="wh-title" className="bars mt-5 block max-w-full" data-inview={inView}>
         <title id="wh-title">
           Share of the zone that was water each year, {first} to {last}
         </title>
@@ -83,13 +86,15 @@ export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
             </text>
           </g>
         ))}
-        {yearly.map((v) =>
+        {yearly.map((v, i) =>
           gap.has(v.year) ? (
-            <rect key={v.year} x={x(v.year)} y={M.top} width={bw} height={plotH} fill="url(#wgap)">
-              <title>{`${v.year}: not enough clear data`}</title>
-            </rect>
+            <g key={v.year} className="bar" style={{ "--i": i } as React.CSSProperties}>
+              <rect x={x(v.year)} y={M.top} width={bw} height={plotH} fill="url(#wgap)">
+                <title>{`${v.year}: not enough clear data`}</title>
+              </rect>
+            </g>
           ) : (
-            <g key={v.year}>
+            <g key={v.year} className="bar" style={{ "--i": i } as React.CSSProperties}>
               <title>{`${v.year}: ${Math.round(v.waterFraction * 100)}% water (${Math.round(v.permanentFraction * 100)}% all year, ${Math.round(v.seasonalFraction * 100)}% part of the year)`}</title>
               <rect x={x(v.year)} y={y(v.permanentFraction)} width={bw + 0.3} height={plotH * v.permanentFraction} fill="var(--c-water)" />
               <rect x={x(v.year)} y={y(v.permanentFraction + v.seasonalFraction)} width={bw + 0.3} height={plotH * v.seasonalFraction} fill="var(--c-water)" opacity="0.45" />

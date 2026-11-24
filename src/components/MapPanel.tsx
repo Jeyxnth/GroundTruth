@@ -6,7 +6,7 @@ import type { OverlayData } from "@/lib/ee/imagery";
 import { ENTRY } from "@/lib/copy";
 
 // MapLibre is large: load it only when the map is shown, never on the server.
-const MapView = dynamic(() => import("@/components/MapView"), {
+export const LazyMap = dynamic(() => import("@/components/MapView"), {
   ssr: false,
   loading: () => <div className="skeleton h-full w-full" aria-hidden />,
 });
@@ -43,7 +43,7 @@ export function MapPanel({
   return (
     <div className="section">
       <div className="relative overflow-hidden rounded-lg border border-line" style={{ height }}>
-        <MapView
+        <LazyMap
           lat={lat}
           lng={lng}
           radiusM={radiusM}

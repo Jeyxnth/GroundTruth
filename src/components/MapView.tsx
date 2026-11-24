@@ -56,6 +56,7 @@ export default function MapView({
   printable = false,
   zoom = 16,
   pinVisible = true,
+  intro = false,
 }: {
   lat: number;
   lng: number;
@@ -67,6 +68,8 @@ export default function MapView({
   printable?: boolean;
   zoom?: number;
   pinVisible?: boolean;
+  /** Start wide and settle onto the zone: the satellite coming in to land. */
+  intro?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -93,7 +96,7 @@ export default function MapView({
       const map = new ml.Map({
         container: container.current,
         center: [p.lng, p.lat],
-        zoom,
+        zoom: intro && !prefersReducedMotion() ? zoom - 2.4 : zoom,
         maxZoom: 19,
         attributionControl: { compact: true },
         interactive: p.interactive,
@@ -166,6 +169,7 @@ export default function MapView({
         map.addLayer({ id: "zone-fill", type: "fill", source: "zone", paint: { "fill-color": "#ffffff", "fill-opacity": 0.1 } });
         map.addLayer({ id: "zone-line", type: "line", source: "zone", paint: { "line-color": "#ffffff", "line-width": 2 } });
         readyRef.current = true;
+        if (intro && !prefersReducedMotion()) map.easeTo({ zoom, duration: 2600, easing: (t) => 1 - Math.pow(1 - t, 4) });
         container.current?.setAttribute("data-ready", "true"); // lets tests and scripts know the map is interactive
         syncZone(map, cur);
         syncOverlay(map, cur);

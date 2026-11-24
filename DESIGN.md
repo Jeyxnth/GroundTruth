@@ -53,3 +53,6 @@ One authored moment: the verdict arrives with a short rise, the score counts up 
 - No gradient text, glass, emoji or glyphs as icons, coloured side borders.
 - Colour is never the only signal.
 - Plain words on the main surface; source and method names live in "Sources" disclosures.
+
+## Round 2 update (supersedes the paper/ink look above)
+Dark is the default theme (near-black `#0a1015`, teal accent `#5fc9d8`), light theme behind a toggle. The analyze page opens on a full-screen interactive map with the verdict as a sheet over it, followed by scroll-revealed chapters. Motion: reveal on scroll, bars grow, counts rise, one slider sweep; all off under reduced motion. Tokens live in `src/app/globals.css`.

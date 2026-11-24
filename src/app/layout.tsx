@@ -17,10 +17,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  colorScheme: "light dark",
+  colorScheme: "dark light",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f4ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e151b" },
+    { media: "(prefers-color-scheme: light)", color: "#0a1015" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a1015" },
   ],
 };
 
@@ -29,7 +29,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   preconnect("https://earthengine.googleapis.com");
   preconnect("https://server.arcgisonline.com");
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}>
+      <head>
+        {/* Apply a saved theme before first paint so there is no flash. Dark is the default. */}
+        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('gt-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}" }} />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

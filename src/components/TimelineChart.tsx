@@ -1,6 +1,7 @@
 "use client";
 
 import { DATING_NOTE, GAP_NOTE, describeTransition } from "@/lib/copy";
+import { useInView } from "@/lib/client/useInView";
 import { useWidth } from "@/lib/client/useWidth";
 import type { LandcoverData, LandcoverYear } from "@/lib/ee/landcover";
 import type { WaterHistoryData } from "@/lib/ee/water";
@@ -28,6 +29,7 @@ function spread(ys: number[], minGap: number, lo: number, hi: number): number[] 
 
 export function TimelineChart({ landcover, water, transition }: { landcover: LandcoverData; water: WaterHistoryData | null; transition: TransitionResult | null }) {
   const { ref, width } = useWidth<HTMLDivElement>();
+  const { ref: svgRef, inView } = useInView<SVGSVGElement>({ rootMargin: "0px 0px -12% 0px" });
   const wide = width >= 640;
   const years = landcover.years;
   const first = years[0]!.year;
@@ -69,7 +71,7 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
 
   return (
     <div ref={ref}>
-      <svg width={width} height={H} role="img" aria-labelledby="tl-title tl-desc" className="block max-w-full">
+      <svg ref={svgRef} width={width} height={H} role="img" aria-labelledby="tl-title tl-desc" className="bars block max-w-full" data-inview={inView}>
         <title id="tl-title">
           What was on the land each year, {first} to {last}
         </title>
@@ -93,17 +95,19 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
           </g>
         ))}
 
-        {years.map((v) => {
+        {years.map((v, i) => {
           if (!v.shares) {
             return (
-              <rect key={v.year} x={x(v.year)} y={M.top} width={bw} height={plotH} fill="url(#gap)">
-                <title>{`${v.year}: no clear image`}</title>
-              </rect>
+              <g key={v.year} className="bar" style={{ "--i": i } as React.CSSProperties}>
+                <rect x={x(v.year)} y={M.top} width={bw} height={plotH} fill="url(#gap)">
+                  <title>{`${v.year}: no clear image`}</title>
+                </rect>
+              </g>
             );
           }
           let acc = 0;
           return (
-            <g key={v.year}>
+            <g key={v.year} className="bar" style={{ "--i": i } as React.CSSProperties}>
               <title>{`${v.year} (${sensorName(v.sensor)}): ` + STACK.map((s) => `${s.label} ${pct(v.shares![s.key])}`).join(", ")}</title>
               {STACK.map((s) => {
                 const share = v.shares![s.key];
@@ -120,8 +124,8 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
         {firstS2 && (
           <g>
             <line x1={x(firstS2)} x2={x(firstS2)} y1={M.top} y2={M.top + plotH} stroke="#fff" strokeWidth="1" strokeDasharray="2 3" />
-            <text x={x(firstS2) + 4} y={M.top + 13} fontSize="12" fill="#fff" style={bgStroke}>
-              Finer images →
+            <text x={x(firstS2) - 4} y={M.top + 13} fontSize="12" fill="#fff" textAnchor="end" style={bgStroke}>
+              Finer images start →
             </text>
           </g>
         )}
@@ -155,15 +159,10 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
       )}
       {jrcPoints.length > 1 && <p className="mt-2 text-sm text-muted">Dashed line: the share of the zone that satellite water maps show as water.</p>}
 
-      {transition && (
-        <div className="mt-4 rounded-lg border border-line bg-panel p-4" data-testid="transition">
-          <p className="font-medium">{describeTransition(transition)}</p>
-          <p className="mt-1 text-base text-muted">
-            {DATING_NOTE}
-            {gapCount > 0 ? ` ${GAP_NOTE(gapCount)}` : ""}
-          </p>
-        </div>
-      )}
+      <p className="mt-3 text-base text-muted" data-testid="dating-note">
+        {DATING_NOTE}
+        {gapCount > 0 ? ` ${GAP_NOTE(gapCount)}` : ""}
+      </p>
       <p className="mt-3 text-sm text-muted">
         Each year uses images from {landcover.season.label.replace(" to ", " to ")}, when skies are clearest. Older images are coarser.
       </p>

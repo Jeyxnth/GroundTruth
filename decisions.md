@@ -53,3 +53,9 @@ Artifacts, each tied to the answer that calls for it:
 - Why: it is already in the project and reads well at small sizes; Impeccable's detector flags Geist as a common face
 - Rejected: swapping to a less common sans
 - Rests on: [DESIGN.md](DESIGN.md)
+
+## 2026-11-25 · Design round 2 approved: map-first hero, scroll story, dark default
+- Decided by: the designer (approved the rendered screenshots)
+- Why: round 1 looked flat and the images were blurry; the designer asked for imagery-led and story-style with clean scroll animation
+- Rejected: keeping the two-column paper/ink layout; stretching small thumbnails (now 720x480 with Esri imagery for "Today")
+- Rests on: docs/design-review/round2

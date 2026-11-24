@@ -1,11 +1,13 @@
 "use client";
 
+import { useInView } from "@/lib/client/useInView";
 import type { ElevationData } from "@/lib/ee/elevation";
 
 const m = (v: number | null, d = 1) => (v === null ? "not available" : `${v.toFixed(d)} m`);
 
 /** How much lower (or higher) the zone sits than the land around it, within 1 km. */
 export function ElevationCard({ data }: { data: ElevationData }) {
+  const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "0px 0px -12% 0px" });
   if (!data.available) {
     return (
       <div role="note" className="rounded-lg border border-line bg-panel p-4">
@@ -39,9 +41,9 @@ export function ElevationCard({ data }: { data: ElevationData }) {
         )}
       </p>
 
-      <div className="mt-5">
+      <div className="mt-5" ref={ref}>
         <div className="relative h-3 rounded-full bg-panel" aria-hidden>
-          <div className="absolute top-1/2 h-6 w-1.5 -translate-y-1/2 rounded-sm bg-[var(--band-high)]" style={{ left: `calc(${pos * 100}% - 3px)` }} />
+          <div className="absolute top-1/2 h-6 w-1.5 -translate-y-1/2 rounded-sm bg-[var(--band-high)]" style={{ left: `calc(${(inView ? pos : 0) * 100}% - 3px)`, transition: "left 1100ms cubic-bezier(0.22,1,0.36,1)" }} />
         </div>
         <div className="mt-1.5 flex justify-between text-sm text-muted">
           <span>lowest nearby: {m(data.surroundingsP10M, 0)}</span>
