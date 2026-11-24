@@ -97,7 +97,7 @@ async function seriesFor(
     return ee.Dictionary({ year, scenes, hist });
   };
 
-  const parts = await mapPool(chunk(years, 8), 4, (ys) => evaluate<RawYear[]>(ee.List(ys.map(dictFor))));
+  const parts = await mapPool(chunk(years, 8), 3, (ys) => evaluate<RawYear[]>(ee.List(ys.map(dictFor))));
   const out = new Map<number, Parsed>();
   for (const raw of parts.flat()) out.set(raw.year, parseHist(raw));
   return out;

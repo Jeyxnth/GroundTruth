@@ -19,6 +19,18 @@ Next.js (App Router) + TypeScript strict, pnpm, Earth Engine via `@google/earthe
 
 `pnpm sample` runs every route against one demo and one control site and saves the real JSON to `docs/sample-output/`.
 
+## Pages
+
+| Page | What it is |
+| --- | --- |
+| `/` | Search (address or `lat, lng`), "Try an example" chips (demo sites and never-water controls) |
+| `/analyze?lat=&lng=&q=` | Live analysis: interactive satellite map (click, drag the pin, or use arrow keys on it), risk score, summary, before/after slider, time-lapse, land-cover timeline, water history, elevation. Each section loads on its own with a skeleton and its own Retry |
+| `/report?lat=&lng=&q=` | The same analysis as a printable document with a stable URL; "Print / Save as PDF" uses a print stylesheet |
+
+Tests: `pnpm test` (unit and integration, needs Earth Engine credentials for the integration part), `pnpm test:e2e` (Playwright against the real app, desktop and 390 px mobile; starts `next dev` if nothing is running on port 3000; set `E2E_BASE_URL` to test a deployment). Install the browser once with `pnpm exec playwright install chromium`.
+
+The map worker is copied from `node_modules` into `public/vendor/` before `dev` and `build` (see `scripts/copy-map-worker.mjs`); that folder is generated and git-ignored.
+
 ## API
 
 All routes return `{ ok: true, data, meta: { lat, lng, radiusM, notes[], generatedAt } }` or `{ ok: false, error: { code, message, retryable } }`. Inputs are validated with zod; coordinates are rounded to 4 decimals, which is also the cache key. `radius` is optional, 50 to 500 m (default 150).

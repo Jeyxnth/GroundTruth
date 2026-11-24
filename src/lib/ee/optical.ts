@@ -105,6 +105,7 @@ export function buildComposite(
   year: number,
   season: SeasonWindow,
   landsatSubset: LandsatSubset = "all",
+  opts: { native?: boolean } = {},
 ): Composite {
   // A fully masked image carrying the six bands: keeps the composite well-formed when a year has no scenes.
   const blank = ee.ImageCollection([
@@ -115,6 +116,8 @@ export function buildComposite(
     return { image: col.merge(blank).median(), scenes: col.size() };
   }
   const col = sentinel2Collection(ee, region, year, season);
+  // Display only: keep Sentinel-2 at its native 10 m instead of the 30 m classification grid.
+  if (opts.native) return { image: col.merge(blank).median(), scenes: col.size() };
   const median = col
     .merge(blank)
     .median()

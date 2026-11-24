@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       const { lat, lng, radiusM } = parseQuery(zoneQuerySchema, req);
       const year = new Date().getUTCFullYear();
       // Thumbnail and tile URLs are signed and expire, so cache for hours rather than weeks.
-      const data = await cached("imagery", [lat, lng, radiusM, year], SECONDS.hour * 6, async () => {
+      const data = await cached("imagery", ["v4", lat, lng, radiusM, year], SECONDS.hour * 6, async () => {
         const [imagery, overlay] = await Promise.all([
           computeImagery(lat, lng, radiusM),
           getOccurrenceOverlay().then(

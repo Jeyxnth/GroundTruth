@@ -49,8 +49,11 @@ async function initialise(): Promise<typeof ee> {
   return ee;
 }
 
-/** Evaluate an EE object server-side, as a promise with a timeout. */
-export function evaluate<T>(obj: { evaluate: (cb: (v: T, err?: string) => void) => void }, timeoutMs = 45_000): Promise<T> {
+/** Capacity and transient errors that usually succeed when tried again a moment later. */
+const TRANSIENT = /memory capacity|too many concurrent|quota|rate limit|429|internal error|backend error|try again|temporarily|unavailable|deadline/i;
+const RETRY_DELAYS_MS = [2_000, 5_000];
+
+function evaluateOnce<T>(obj: { evaluate: (cb: (v: T, err?: string) => void) => void }, timeoutMs: number): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(
       () => reject(new EeError(`Earth Engine computation timed out after ${timeoutMs} ms`, "timeout")),
@@ -58,10 +61,25 @@ export function evaluate<T>(obj: { evaluate: (cb: (v: T, err?: string) => void) 
     );
     obj.evaluate((value, err) => {
       clearTimeout(timer);
-      if (err) {
-        const kind = /quota|too many|rate|429/i.test(err) ? "quota" : "compute";
-        reject(new EeError(err, kind));
-      } else resolve(value);
+      if (err) reject(new EeError(err, TRANSIENT.test(err) ? "quota" : "compute"));
+      else resolve(value);
     });
   });
+}
+
+/**
+ * Evaluate an EE object server-side, as a promise with a timeout. Transient capacity errors (Earth Engine sheds load
+ * when several heavy requests arrive together) are retried with backoff; anything else fails straight away.
+ */
+export async function evaluate<T>(obj: { evaluate: (cb: (v: T, err?: string) => void) => void }, timeoutMs = 45_000): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await evaluateOnce(obj, timeoutMs);
+    } catch (e) {
+      const retryable = e instanceof EeError && e.kind === "quota";
+      const delay = RETRY_DELAYS_MS[attempt];
+      if (!retryable || delay === undefined) throw e;
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
 }

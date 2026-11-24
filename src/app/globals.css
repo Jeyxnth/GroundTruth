@@ -2,25 +2,104 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #14202b;
+  --muted: #55646f;
+  --line: #d5dde3;
+  --panel: #f5f8fa;
+  --accent: #0b5cad;
+  --accent-ink: #ffffff;
+  /* data colours: colour-blind-safe set; every use also has a text label or pattern */
+  --c-water: #2b6cb0;
+  --c-veg: #3f9a55;
+  --c-bare: #c9a45c;
+  --c-built: #6b4f7a;
+  --band-low: #1f7a4d;
+  --band-moderate: #b26a00;
+  --band-high: #b3261e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0d151c;
+    --foreground: #e6edf2;
+    --muted: #9fb0bc;
+    --line: #2a3a47;
+    --panel: #14202a;
+    --accent: #6db3f2;
+    --accent-ink: #0d151c;
+    --c-water: #5aa2e6;
+    --c-veg: #62c07a;
+    --c-bare: #d9b96f;
+    --c-built: #b08ac4;
+    --band-low: #55c28a;
+    --band-moderate: #f0a440;
+    --band-high: #ff8a80;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-panel: var(--panel);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  line-height: 1.5;
 }
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skeleton shimmer (static when the user prefers reduced motion) */
+.skeleton {
+  background: linear-gradient(90deg, var(--panel) 25%, var(--line) 37%, var(--panel) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .skeleton { animation: none; }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Print: clean single-column document, no controls */
+@media print {
+  @page { margin: 14mm; }
+  :root { --background: #fff; --foreground: #000; --muted: #333; --line: #bbb; --panel: #fff; }
+  body { background: #fff !important; color: #000 !important; font-size: 11pt; }
+  .no-print, nav, button, input, select, .maplibregl-ctrl { display: none !important; }
+  .print-only { display: block !important; }
+  .section { break-inside: avoid; page-break-inside: avoid; border: 1px solid #bbb !important; box-shadow: none !important; }
+  .skeleton { animation: none; }
+  a { color: #000; text-decoration: none; }
+  details > summary { display: none; }
+  details[open] > *:not(summary), details > *:not(summary) { display: block; }
+}
+.print-only { display: none; }

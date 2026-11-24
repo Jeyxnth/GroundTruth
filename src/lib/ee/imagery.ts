@@ -16,7 +16,8 @@ import {
 
 /** Imagery is only shown for years where at least this share of the zone is cloud-free. */
 const IMAGERY_MIN_VALID = 0.8;
-const FRAME_PIXELS = 640;
+// About 2x Sentinel-2 native resolution across the frame; the browser scales it smoothly, so Landsat reads as soft, not blocky.
+const FRAME_PIXELS = 132;
 const VIEW_RADIUS_FACTOR = 2.2; // frame shows ~2.2x the zone radius so the surroundings are visible
 
 export interface ImageryFrame {
@@ -57,7 +58,7 @@ async function coverage(
     const valid = image.select("red").mask().reduceRegion({ reducer: ee.Reducer.mean(), geometry: zone, scale: 30, maxPixels: 1e7 }).get("red");
     return ee.Dictionary({ year, valid });
   };
-  const parts = await mapPool(chunk(years, 10), 4, (ys) =>
+  const parts = await mapPool(chunk(years, 10), 3, (ys) =>
     evaluate<Array<{ year: number; valid: number | null }>>(ee.List(ys.map(dictFor))),
   );
   return new Map(parts.flat().map((r) => [r.year, r.valid ?? 0]));
@@ -81,9 +82,10 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
   const usable = plan.filter((p): p is { year: number; sensor: Sensor; valid: number; fellBack: boolean } => p.sensor !== null);
   const skippedYears = plan.filter((p) => p.sensor === null).map((p) => p.year);
 
-  const outline = ee.FeatureCollection([ee.Feature(zone)]).style({ color: "FFFFFF", fillColor: "00000000", width: 2 });
+  const outline = ee.FeatureCollection([ee.Feature(point.buffer(radiusM, 0.5))]).style({ color: "FFFFFF", fillColor: "00000000", width: 2 });
   const visualised = (year: number, sensor: Sensor) => {
-    const { image } = buildComposite(ee, sensor, zone, year, season);
+    // Native Sentinel-2 resolution (10 m), no resampling: bicubic resampling of composites flattens them.
+    const { image } = buildComposite(ee, sensor, zone, year, season, "all", { native: true });
     return image
       .visualize({ bands: ["red", "green", "blue"], min: 0.02, max: 0.28, gamma: 1.2 })
       .blend(outline);
@@ -103,7 +105,7 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
     try {
       const col = ee.ImageCollection(usable.map((u) => visualised(u.year, u.sensor)));
       gifUrl = await getUrl<string>(
-        (cb) => col.getVideoThumbURL({ region: view, dimensions: 480, framesPerSecond: 3, format: "gif" }, cb as any),
+        (cb) => col.getVideoThumbURL({ region: view, dimensions: 264, framesPerSecond: 3, format: "gif" }, cb as any),
         "time-lapse",
       );
     } catch (e) {

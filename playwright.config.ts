@@ -16,5 +16,5 @@ export default defineConfig({
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined
-    : { command: "pnpm dev", url: baseURL, reuseExistingServer: true, timeout: 120_000 },
+    : { command: "node node_modules/next/dist/bin/next dev -p 3000", url: baseURL, reuseExistingServer: true, timeout: 120_000 },
 });
