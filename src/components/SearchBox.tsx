@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import { SEARCH_ERRORS } from "@/lib/copy";
 import { getJson, SectionError } from "@/lib/client/fetch";
 import { formatCoords } from "@/lib/geometry";
 
@@ -21,7 +22,14 @@ type State =
   | { status: "results"; results: Place[] }
   | { status: "error"; message: string; retryable: boolean };
 
-/** Address search (Nominatim via /api/geocode). Also accepts "lat, lng". Submit-only: no search-as-you-type. */
+function searchError(e: SectionError): string {
+  if (e.code === "not_found") return SEARCH_ERRORS.notFound;
+  if (e.code === "rate_limited") return SEARCH_ERRORS.busy;
+  if (e.code === "network" || e.code === "timeout") return SEARCH_ERRORS.network;
+  return e.message;
+}
+
+/** Address search (Nominatim via /api/geocode). Also accepts "lat, lng". One match opens straight away; several are listed. */
 export function SearchBox({
   onSelect,
   compact = false,
@@ -41,7 +49,7 @@ export function SearchBox({
     e?.preventDefault();
     const q = query.trim();
     if (q.length < 3) {
-      setState({ status: "error", message: "Type at least 3 characters, or paste a lat, lng pair.", retryable: false });
+      setState({ status: "error", message: SEARCH_ERRORS.short, retryable: false });
       return;
     }
     abort.current?.abort();
@@ -50,48 +58,51 @@ export function SearchBox({
     setState({ status: "searching" });
     try {
       const { data } = await getJson<GeocodeData>(`/api/geocode?q=${encodeURIComponent(q)}`, { signal: ac.signal, timeoutMs: 20_000 });
-      setState({ status: "results", results: data.results });
+      const only = data.results.length === 1 ? data.results[0] : undefined;
+      if (only) {
+        onSelect({ label: only.label, lat: only.lat, lng: only.lng, inIndia: only.inIndia });
+        setState({ status: "idle" });
+      } else setState({ status: "results", results: data.results });
     } catch (err) {
       if (ac.signal.aborted) return;
       const e2 = err instanceof SectionError ? err : new SectionError("Search failed.", "bad_response", true);
-      setState({ status: "error", message: e2.message, retryable: e2.retryable });
+      setState({ status: "error", message: searchError(e2), retryable: e2.retryable });
     }
   }
 
   return (
     <div className="w-full">
       <form onSubmit={search} role="search" className="flex gap-2">
-        <div className="flex-1">
-          <label htmlFor={inputId} className={compact ? "sr-only" : "mb-1 block text-sm font-medium"}>
+        <div className="min-w-0 flex-1">
+          <label htmlFor={inputId} className={compact ? "sr-only" : "mb-1.5 block font-medium"}>
             Address, locality or coordinates
           </label>
           <input
             id={inputId}
             type="search"
+            enterKeyHint="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. Perungudi, Chennai   or   12.9413, 80.2179"
+            name="q"
+            placeholder="Perungudi, Chennai or 12.9413, 80.2179…"
             autoComplete="off"
-            className="w-full rounded-md border border-line bg-background px-3 py-2.5 text-base"
+            spellCheck={false}
+            className="h-12 w-full rounded-lg border border-line bg-surface px-3.5 text-base"
             aria-describedby={`${listId}-status`}
           />
         </div>
-        <button
-          type="submit"
-          className={`rounded-md bg-accent px-4 py-2.5 font-medium text-[var(--accent-ink)] ${compact ? "self-end" : "self-end"}`}
-          disabled={state.status === "searching"}
-        >
+        <button type="submit" className={`btn btn-primary h-12 self-end px-5`} disabled={state.status === "searching"}>
           {state.status === "searching" ? "Searching…" : "Search"}
         </button>
       </form>
 
-      <div id={`${listId}-status`} aria-live="polite" className="mt-2 text-sm">
-        {state.status === "searching" && <p className="text-muted">Looking up the address…</p>}
+      <div id={`${listId}-status`} aria-live="polite" className="mt-2 text-base">
+        {state.status === "searching" && <p className="text-muted">Looking up the place…</p>}
         {state.status === "error" && (
           <p role="alert" className="text-[var(--band-high)]">
             {state.message}{" "}
             {state.retryable && (
-              <button type="button" onClick={() => search()} className="underline">
+              <button type="button" onClick={() => search()} className="tap underline">
                 Try again
               </button>
             )}
@@ -99,19 +110,17 @@ export function SearchBox({
         )}
         {state.status === "results" && (
           <>
-            <p className="text-muted">
-              {state.results.length} match{state.results.length === 1 ? "" : "es"}. Choose the right one:
-            </p>
-            <ul id={listId} className="mt-1 divide-y divide-line rounded-md border border-line">
+            <p className="text-muted">Choose the right place:</p>
+            <ul id={listId} className="mt-1 divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
               {state.results.map((r, i) => (
                 <li key={`${r.lat},${r.lng},${i}`}>
                   <button
                     type="button"
                     onClick={() => onSelect({ label: r.label, lat: r.lat, lng: r.lng, inIndia: r.inIndia })}
-                    className="block w-full px-3 py-2 text-left hover:bg-panel"
+                    className="block min-h-[44px] w-full px-3.5 py-2.5 text-left hover:bg-panel"
                   >
                     <span className="block">{r.label}</span>
-                    <span className="block text-xs text-muted">
+                    <span className="block font-mono text-sm text-muted">
                       {formatCoords(r.lat, r.lng)}
                       {r.inIndia ? "" : " · outside India"}
                     </span>

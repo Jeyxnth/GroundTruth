@@ -158,6 +158,6 @@ export async function getOccurrenceOverlay(): Promise<OverlayData> {
     legend: { min: 1, max: 100, palette: OVERLAY_PALETTE, label: "Water occurrence 1984 to 2021 (% of observations)" },
     attribution: "Water occurrence: EC JRC/Google (Pekel et al. 2016)",
   };
-  overlay = { value, expires: Date.now() + 6 * 3600 * 1000 };
+  overlay = { value, expires: Date.now() + 15 * 60 * 1000 }; // signed tile URLs expire
   return value;
 }

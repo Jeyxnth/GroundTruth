@@ -93,16 +93,16 @@ export function templateSummary(f: Facts): string {
   if (t && t.kind !== "insufficient-data") {
     switch (t.kind) {
       case "fill-and-build":
-        out.push(`The land-cover record shows water until ${t.waterUntilYear}, bare or filled ground from ${t.filledFromYear}, and built-up land from ${t.builtFromYear}, which matches a fill-and-build pattern.`);
+        out.push(`The images suggest water until about ${t.waterUntilYear}, bare or filled ground from about ${t.filledFromYear}, and buildings from about ${t.builtFromYear}.`);
         break;
       case "water-to-built":
-        out.push(`Water was present until ${t.waterUntilYear} and the zone was built-up from ${t.builtFromYear}.`);
+        out.push(`The images suggest water until about ${t.waterUntilYear}, and buildings from about ${t.builtFromYear}.`);
         break;
       case "water-to-bare":
-        out.push(`Water was present until ${t.waterUntilYear}, and the zone has been bare or filled ground since ${t.filledFromYear}.`);
+        out.push(`The images suggest water until about ${t.waterUntilYear}, and bare or filled ground from about ${t.filledFromYear}.`);
         break;
       case "water-to-vegetation":
-        out.push(`Water gave way to vegetation after ${t.waterUntilYear}, which looks more like natural succession than deliberate filling.`);
+        out.push(`The images suggest water gave way to plants after about ${t.waterUntilYear}, which looks like a natural change, not filling.`);
         break;
       case "none":
         out.push(w?.currentlyWater ? "The zone still shows water in recent years." : "No water-to-land change was detected in the land-cover record.");
@@ -143,6 +143,7 @@ export const SUMMARY_SYSTEM_PROMPT = [
   "- Use only facts present in the JSON. Do not add, infer or estimate anything else.",
   "- Every year and every number you write must appear in the JSON (percent values may be written as they appear). Do not write any other numbers, including counts, and do not include coordinates.",
   "- If a value is null or a section is null, say it could not be determined; do not guess.",
+  "- Describe dated changes as what the images suggest, and write each year with the word about (for example: the images suggest water until about 2005). Never state as a fact that a lake was filled.",
   "- Natural-looking water-to-vegetation change must not be described as filling.",
   "- Do not give legal conclusions, accuse anyone, or tell the reader whether to buy.",
   "- End by reminding the reader to verify with official land records.",

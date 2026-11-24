@@ -3,6 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
 import type { GeoJSONSource, Map as MapLibreMap, Marker } from "maplibre-gl";
+import { ENTRY } from "@/lib/copy";
 import { circlePolygon } from "@/lib/geometry";
 
 export interface MapOverlay {
@@ -14,8 +15,19 @@ const NUDGE_DEG = 0.0003; // about 33 m per arrow-key press
 
 const prefersReducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+interface State {
+  lat: number;
+  lng: number;
+  radiusM: number;
+  pinVisible: boolean;
+  overlay: MapOverlay | null;
+  showOverlay: boolean;
+  onMove?: (lat: number, lng: number) => void;
+  interactive: boolean;
+}
+
 /** Add the occurrence raster once its tile URL exists, and show or hide it. */
-function syncOverlay(map: MapLibreMap, s: { overlay: MapOverlay | null; showOverlay: boolean }) {
+function syncOverlay(map: MapLibreMap, s: Pick<State, "overlay" | "showOverlay">) {
   const { overlay: o, showOverlay: show } = s;
   if (o && !map.getSource("occ")) {
     map.addSource("occ", { type: "raster", tiles: [o.tileUrl], tileSize: 256, maxzoom: 15, attribution: "Water occurrence © EC JRC / Google" });
@@ -24,8 +36,13 @@ function syncOverlay(map: MapLibreMap, s: { overlay: MapOverlay | null; showOver
   if (map.getLayer("occ-layer")) map.setLayoutProperty("occ-layer", "visibility", show ? "visible" : "none");
 }
 
+function syncZone(map: MapLibreMap, s: Pick<State, "lat" | "lng" | "radiusM" | "pinVisible">) {
+  (map.getSource("zone") as GeoJSONSource | undefined)?.setData(circlePolygon(s.lat, s.lng, s.radiusM));
+  for (const id of ["zone-fill", "zone-line"]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", s.pinVisible ? "visible" : "none");
+}
+
 /**
- * Satellite map (Esri World Imagery) with the analysed zone outline, a draggable pin, tap-to-move,
+ * Satellite map (Esri World Imagery) with the analysed zone outline, a draggable pin (44 px hit area), tap-to-move,
  * keyboard nudging and an optional Earth Engine water-occurrence overlay.
  */
 export default function MapView({
@@ -37,6 +54,8 @@ export default function MapView({
   showOverlay,
   onMove,
   printable = false,
+  zoom = 16,
+  pinVisible = true,
 }: {
   lat: number;
   lng: number;
@@ -46,15 +65,18 @@ export default function MapView({
   showOverlay: boolean;
   onMove?: (lat: number, lng: number) => void;
   printable?: boolean;
+  zoom?: number;
+  pinVisible?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
+  const pinElRef = useRef<HTMLDivElement | null>(null);
   const readyRef = useRef(false);
   // Latest props, readable from long-lived map callbacks without re-creating the map
-  const latest = useRef({ lat, lng, radiusM, overlay, showOverlay, onMove, interactive });
+  const latest = useRef<State>({ lat, lng, radiusM, pinVisible, overlay, showOverlay, onMove, interactive });
   useEffect(() => {
-    latest.current = { lat, lng, radiusM, overlay, showOverlay, onMove, interactive };
+    latest.current = { lat, lng, radiusM, pinVisible, overlay, showOverlay, onMove, interactive };
   });
 
   // Create the map once.
@@ -71,7 +93,7 @@ export default function MapView({
       const map = new ml.Map({
         container: container.current,
         center: [p.lng, p.lat],
-        zoom: 16,
+        zoom,
         maxZoom: 19,
         attributionControl: { compact: true },
         interactive: p.interactive,
@@ -97,16 +119,18 @@ export default function MapView({
         map.addControl(new ml.ScaleControl({ unit: "metric" }), "bottom-left");
       }
 
+      // 44 px transparent hit area around a 22 px visible dot
       const el = document.createElement("div");
-      el.className = "gt-pin";
-      el.setAttribute("role", "img");
-      el.setAttribute("aria-label", "Analysed location pin");
-      el.style.cssText =
-        "width:22px;height:22px;border-radius:50%;background:#fff;border:5px solid #b3261e;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.5);";
+      el.style.cssText = "width:44px;height:44px;display:flex;align-items:center;justify-content:center;";
+      const dot = document.createElement("div");
+      dot.style.cssText = "width:22px;height:22px;border-radius:50%;background:#fff;border:5px solid #b3261e;box-shadow:0 1px 6px rgba(0,0,0,.55);";
+      el.appendChild(dot);
+      el.style.display = p.pinVisible ? "flex" : "none";
+      pinElRef.current = el;
       if (p.interactive) {
         el.tabIndex = 0;
         el.setAttribute("role", "button");
-        el.setAttribute("aria-label", "Pin. Drag it, or use the arrow keys to move the analysed location.");
+        el.setAttribute("aria-label", ENTRY.pinLabel);
         el.style.cursor = "grab";
         el.addEventListener("keydown", (ev) => {
           const d: Record<string, [number, number]> = { ArrowUp: [NUDGE_DEG, 0], ArrowDown: [-NUDGE_DEG, 0], ArrowLeft: [0, -NUDGE_DEG], ArrowRight: [0, NUDGE_DEG] };
@@ -121,6 +145,9 @@ export default function MapView({
             if (m) latest.current.onMove?.(m.lat, m.lng);
           }, 700);
         });
+      } else {
+        el.setAttribute("role", "img");
+        el.setAttribute("aria-label", "Analysed location pin");
       }
       const marker = new ml.Marker({ element: el, draggable: p.interactive }).setLngLat([p.lng, p.lat]).addTo(map);
       markerRef.current = marker;
@@ -136,10 +163,12 @@ export default function MapView({
       map.on("load", () => {
         const cur = latest.current;
         map.addSource("zone", { type: "geojson", data: circlePolygon(cur.lat, cur.lng, cur.radiusM) });
-        map.addLayer({ id: "zone-fill", type: "fill", source: "zone", paint: { "fill-color": "#ffffff", "fill-opacity": 0.12 } });
-        map.addLayer({ id: "zone-line", type: "line", source: "zone", paint: { "line-color": "#ffffff", "line-width": 2.5 } });
+        map.addLayer({ id: "zone-fill", type: "fill", source: "zone", paint: { "fill-color": "#ffffff", "fill-opacity": 0.1 } });
+        map.addLayer({ id: "zone-line", type: "line", source: "zone", paint: { "line-color": "#ffffff", "line-width": 2 } });
         readyRef.current = true;
-        syncOverlay(map, latest.current);
+        container.current?.setAttribute("data-ready", "true"); // lets tests and scripts know the map is interactive
+        syncZone(map, cur);
+        syncOverlay(map, cur);
       });
     })();
 
@@ -161,14 +190,15 @@ export default function MapView({
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
     markerRef.current?.setLngLat([lng, lat]);
-    (map.getSource("zone") as GeoJSONSource | undefined)?.setData(circlePolygon(lat, lng, radiusM));
+    if (pinElRef.current) pinElRef.current.style.display = pinVisible ? "flex" : "none";
+    syncZone(map, { lat, lng, radiusM, pinVisible });
     const c = map.getCenter();
     const moved = Math.abs(c.lat - lat) > 1e-5 || Math.abs(c.lng - lng) > 1e-5;
-    if (moved) {
+    if (moved && pinVisible) {
       if (prefersReducedMotion()) map.jumpTo({ center: [lng, lat] });
-      else map.easeTo({ center: [lng, lat], duration: 600 });
+      else map.easeTo({ center: [lng, lat], duration: 700, easing: (t) => 1 - Math.pow(1 - t, 3) });
     }
-  }, [lat, lng, radiusM]);
+  }, [lat, lng, radiusM, pinVisible]);
 
   // Water-occurrence overlay: add when the tile URL arrives, toggle with the checkbox.
   useEffect(() => {
@@ -176,13 +206,5 @@ export default function MapView({
     if (map && readyRef.current) syncOverlay(map, latest.current);
   }, [overlay, showOverlay]);
 
-  return (
-    <div
-      ref={container}
-      role="region"
-      aria-label="Satellite map of the analysed zone"
-      className="h-full w-full bg-panel"
-      data-testid="map"
-    />
-  );
+  return <div ref={container} role="region" aria-label="Satellite map of the analysed zone" className="h-full w-full bg-panel" data-testid="map" />;
 }

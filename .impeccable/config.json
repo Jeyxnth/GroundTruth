@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "src/components/ImageryPanel.tsx"
+        ],
+        "createdAt": "2026-11-24T16:14:37.054Z",
+        "reason": "agent: false positive, every img src is a runtime Earth Engine thumbnail URL from API data, not a placeholder"
+      }
+    ]
+  }
+}

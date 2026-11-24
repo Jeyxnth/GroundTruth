@@ -1,26 +1,34 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { friendlyError, SECTION_ERROR_HEADING } from "@/lib/copy";
 import type { Section as SectionData } from "@/lib/client/useSection";
 
 /**
- * One result section. Reserves its height while loading (no layout shift when it fills in),
- * shows a skeleton while pending, and a clear per-section error with Retry.
+ * One result section, set as a ruled block rather than a box. It reserves its final height with `reserve`
+ * (responsive min-height classes sized to the loaded content) so nothing jumps when it fills in, shows a skeleton while
+ * pending, and shows its own error with Retry when it fails.
  */
 export function SectionCard<T>({
   id,
   title,
   section,
-  minHeight,
+  reserve,
   children,
   action,
+  className = "",
+  loadingContent,
 }: {
   id: string;
   title: string;
   section: SectionData<T> | { status: "loading" | "idle" };
-  minHeight: number;
+  /** Tailwind min-height classes matching the loaded height at each breakpoint. */
+  reserve: string;
   children: (data: T) => ReactNode;
   action?: ReactNode;
+  className?: string;
+  /** Replaces the grey skeleton while loading (for example the wait panel). */
+  loadingContent?: ReactNode;
 }) {
   const headingId = `${id}-title`;
   return (
@@ -28,41 +36,42 @@ export function SectionCard<T>({
       id={id}
       aria-labelledby={headingId}
       aria-busy={section.status === "loading"}
-      className="section rounded-lg border border-line bg-background p-4 sm:p-5"
-      style={{ minHeight }}
+      className={`section border-t border-line pt-5 ${reserve} ${className}`}
       data-status={section.status}
     >
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 id={headingId} className="text-lg font-semibold">
+        <h2 id={headingId} className="text-2xl">
           {title}
         </h2>
         {action}
       </div>
       {section.status === "loading" && (
+        loadingContent ? (
+        <div role="status" aria-live="polite">
+          <span className="sr-only">Loading {title}…</span>
+          {loadingContent}
+        </div>
+      ) : (
         <div role="status" aria-live="polite">
           <span className="sr-only">Loading {title}…</span>
           <div className="skeleton h-5 w-2/3" />
           <div className="skeleton mt-3 h-4 w-full" />
           <div className="skeleton mt-2 h-4 w-5/6" />
-          <div className="skeleton mt-4" style={{ height: Math.max(60, minHeight - 140) }} />
+          <div className="skeleton mt-5 h-40 w-full" />
         </div>
-      )}
+      ))}
       {"error" in section && section.status === "error" && (
-        <div role="alert" className="rounded-md border border-line bg-panel p-3">
-          <p className="font-medium">This section could not be loaded.</p>
-          <p className="mt-1 text-sm text-muted">{section.error.message}</p>
+        <div role="alert" className="rounded-lg border border-line bg-panel p-4">
+          <p className="font-medium">{SECTION_ERROR_HEADING}</p>
+          <p className="mt-1 text-base text-muted">{friendlyError(section.error)}</p>
           {section.error.retryable && "retry" in section ? (
-            <button
-              type="button"
-              onClick={section.retry}
-              className="no-print mt-3 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-[var(--accent-ink)]"
-            >
-              Retry
+            <button type="button" onClick={section.retry} className="btn btn-primary no-print mt-3">
+              Try again
             </button>
           ) : null}
         </div>
       )}
-      {section.status === "ok" && "data" in section ? children(section.data) : null}
+      {section.status === "ok" && "data" in section ? <div className="fade-in">{children(section.data)}</div> : null}
     </section>
   );
 }

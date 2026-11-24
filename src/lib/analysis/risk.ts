@@ -139,8 +139,8 @@ export function computeRisk(input: RiskInputs): RiskResult {
       const age = Math.max(0, currentYear - since);
       const tiers = transition.humanFillingLikely ? RISK_CONFIG.recencyHuman : RISK_CONFIG.recencyNatural;
       const scale = tiers.find((t) => age <= t.withinYears)?.scale ?? 0.1;
-      const how = transition.humanFillingLikely ? "was filled or built over" : "turned to vegetation (looks natural)";
-      add({ id: "recency", name: N3, points: pts(M.recency, scale), maxPoints: M.recency, available: true, reason: `The water ${how} from about ${since}, ${age} years ago.` });
+      const how = transition.humanFillingLikely ? "was filled or built over" : "gave way to plants (this looks natural)";
+      add({ id: "recency", name: N3, points: pts(M.recency, scale), maxPoints: M.recency, available: true, reason: `The images suggest the water ${how} from about ${since}, ${age} years ago.` });
     }
   }
 

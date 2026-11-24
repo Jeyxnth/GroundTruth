@@ -7,17 +7,25 @@ import type { ImageryPayload } from "@/lib/client/useAnalysis";
 const sensorName = (s: ImageryFrame["sensor"]) => (s === "sentinel2" ? "Sentinel-2" : "Landsat");
 const FRAME_MS = 600;
 
+function Img({ f, alt, className = "" }: { f: ImageryFrame; alt: string; className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={f.url} alt={alt} width={132} height={132} decoding="async" className={`absolute inset-0 h-full w-full object-cover ${className}`} draggable={false} />;
+}
+
 function BeforeAfter({ before, after, report }: { before: ImageryFrame; after: ImageryFrame; report: boolean }) {
-  const [pos, setPos] = useState(50); // % of the frame showing "before"
+  const [pos, setPos] = useState(50); // % of the frame that shows "before"
   const id = useId();
   if (report) {
     return (
       <div className="grid grid-cols-2 gap-3">
         {[before, after].map((f, i) => (
           <figure key={f.year}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={f.url} alt={`${i === 0 ? "Earliest" : "Latest"} clear satellite image, ${f.year}`} className="aspect-square w-full rounded-md border border-line object-cover" />
-            <figcaption className="mt-1 text-sm">{i === 0 ? "Before" : "After"}: {f.year} ({sensorName(f.sensor)})</figcaption>
+            <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-line bg-panel">
+              <Img f={f} alt={`${i === 0 ? "Earliest" : "Latest"} clear satellite image, ${f.year}`} />
+            </div>
+            <figcaption className="mt-1 text-base">
+              {i === 0 ? "Before" : "After"}: <span className="font-mono">{f.year}</span>
+            </figcaption>
           </figure>
         ))}
       </div>
@@ -25,36 +33,22 @@ function BeforeAfter({ before, after, report }: { before: ImageryFrame; after: I
   }
   return (
     <div>
-      <div className="relative mx-auto aspect-square w-full max-w-xl select-none overflow-hidden rounded-md border border-line bg-panel">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={after.url} alt={`Latest clear satellite image, ${after.year}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={before.url}
-          alt={`Earliest clear satellite image, ${before.year}`}
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
-        />
-        <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow" style={{ left: `${pos}%` }} aria-hidden />
-        <span className="absolute left-2 top-2 rounded bg-black/65 px-2 py-0.5 text-xs font-medium text-white">Before · {before.year}</span>
-        <span className="absolute right-2 top-2 rounded bg-black/65 px-2 py-0.5 text-xs font-medium text-white">After · {after.year}</span>
+      <div className="relative aspect-square w-full touch-pan-y select-none overflow-hidden rounded-lg border border-line bg-panel">
+        <Img f={after} alt={`Latest clear satellite image, ${after.year}`} />
+        {/* The before image is clipped to the slider position (direct manipulation: no easing on the clip). */}
+        <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+          <Img f={before} alt={`Earliest clear satellite image, ${before.year}`} />
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]" style={{ left: `${pos}%` }} aria-hidden />
+        <span className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 text-sm font-medium text-white">Before · <span className="font-mono">{before.year}</span></span>
+        <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-1 text-sm font-medium text-white">After · <span className="font-mono">{after.year}</span></span>
       </div>
-      <label htmlFor={id} className="mx-auto mt-3 block max-w-xl text-sm">
+      <label htmlFor={id} className="block">
         <span className="sr-only">Compare before and after</span>
-        <input
-          id={id}
-          type="range"
-          min={0}
-          max={100}
-          value={pos}
-          onChange={(e) => setPos(Number(e.target.value))}
-          className="w-full"
-          aria-valuetext={`${pos}% showing ${before.year}`}
-        />
+        <input id={id} type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} aria-valuetext={`${pos}% showing ${before.year}`} />
       </label>
-      <p className="mx-auto max-w-xl text-center text-xs text-muted">
-        Drag to compare {before.year} ({sensorName(before.sensor)}) with {after.year} ({sensorName(after.sensor)}). Older Landsat images are softer because each pixel is 30 m.
+      <p className="text-base text-muted">
+        Drag to compare {before.year} ({sensorName(before.sensor)}) with {after.year} ({sensorName(after.sensor)}). Older images are softer because each square covers 30 m.
       </p>
     </div>
   );
@@ -62,12 +56,17 @@ function BeforeAfter({ before, after, report }: { before: ImageryFrame; after: I
 
 function TimeLapse({ frames, gifUrl }: { frames: ImageryFrame[]; gifUrl: string | null }) {
   const [idx, setIdx] = useState(0);
+  const [prev, setPrev] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const preloaded = useRef(false);
   const id = useId();
 
-  // Preload frames the first time the user interacts, so playback does not stall.
+  const go = (n: number) => {
+    setPrev(idx);
+    setIdx(n);
+  };
+  // Preload every frame the first time the user interacts so playback does not stall.
   const preload = () => {
     if (preloaded.current) return;
     preloaded.current = true;
@@ -84,28 +83,45 @@ function TimeLapse({ frames, gifUrl }: { frames: ImageryFrame[]; gifUrl: string 
 
   useEffect(() => {
     if (!playing) return;
-    const t = setInterval(() => setIdx((i) => (i + 1) % frames.length), FRAME_MS);
+    const t = setInterval(() => {
+      setIdx((i) => {
+        setPrev(i);
+        return (i + 1) % frames.length;
+      });
+    }, FRAME_MS);
     return () => clearInterval(t);
   }, [playing, frames.length]);
 
   const f = frames[Math.min(idx, frames.length - 1)]!;
+  const p = frames[Math.min(prev, frames.length - 1)]!;
   return (
     <div>
-      <div className="relative mx-auto aspect-square w-full max-w-xl overflow-hidden rounded-md border border-line bg-panel">
+      <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-line bg-panel">
+        {/* Previous frame stays underneath while the new one fades in, so frames dissolve instead of cutting. */}
+        <Img f={p} alt="" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={f.url} alt={`Satellite view of the zone in ${f.year}`} loading="lazy" className="h-full w-full object-cover" />
-        <span className="absolute left-2 top-2 rounded bg-black/65 px-2 py-0.5 text-sm font-semibold text-white tabular-nums">{f.year}</span>
-        <span className="absolute bottom-2 left-2 rounded bg-black/65 px-2 py-0.5 text-xs text-white">{sensorName(f.sensor)}</span>
+        <img
+          key={f.year}
+          src={f.url}
+          alt={`Satellite view of the zone in ${f.year}`}
+          width={132}
+          height={132}
+          decoding="async"
+          className="fade-in absolute inset-0 h-full w-full object-cover"
+          draggable={false}
+        />
+        <span className="absolute left-2 top-2 rounded bg-black/70 px-2 py-1 font-mono text-base font-semibold text-white">{f.year}</span>
+        <span className="absolute bottom-2 left-2 rounded bg-black/70 px-2 py-1 text-sm text-white">{sensorName(f.sensor)}</span>
       </div>
-      <div className="mx-auto mt-3 flex max-w-xl items-center gap-3">
+      <div className="flex items-center gap-3">
         <button
           type="button"
           aria-pressed={playing}
           onClick={() => {
             preload();
-            setPlaying((p) => !p);
+            setPlaying((v) => !v);
           }}
-          className="w-24 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-[var(--accent-ink)]"
+          className="btn btn-primary w-28 shrink-0"
         >
           {playing ? "Pause" : "Play"}
         </button>
@@ -120,17 +136,16 @@ function TimeLapse({ frames, gifUrl }: { frames: ImageryFrame[]; gifUrl: string 
             onChange={(e) => {
               preload();
               setPlaying(false);
-              setIdx(Number(e.target.value));
+              go(Number(e.target.value));
             }}
-            className="w-full"
             aria-valuetext={`${f.year}`}
           />
         </label>
       </div>
-      <p className="mx-auto mt-1 max-w-xl text-xs text-muted">
-        {frames.length} clear years from {frames[0]!.year} to {frames[frames.length - 1]!.year}.{loaded ? "" : " Press play to load all frames."}{" "}
+      <p className="text-base text-muted">
+        Clear years from <span className="font-mono">{frames[0]!.year}</span> to <span className="font-mono">{frames[frames.length - 1]!.year}</span>.{loaded ? "" : " Press play to load all frames."}{" "}
         {gifUrl && (
-          <a href={gifUrl} target="_blank" rel="noreferrer" className="text-accent underline">
+          <a href={gifUrl} target="_blank" rel="noreferrer" className="tap -my-3 inline-flex text-accent underline">
             Open as animated GIF
           </a>
         )}
@@ -139,25 +154,47 @@ function TimeLapse({ frames, gifUrl }: { frames: ImageryFrame[]; gifUrl: string 
   );
 }
 
+/** Before/after and time-lapse share one square (tabs), so the evidence stays short on a phone. */
 export function ImageryPanel({ data, report = false }: { data: ImageryPayload; report?: boolean }) {
+  const [tab, setTab] = useState<"compare" | "lapse">("compare");
+  const tabsId = useId();
   if (!data.before || !data.after) {
-    return <p className="text-sm">Not enough clear satellite years to show a before and after for this zone.</p>;
+    return <p>Not enough clear satellite years to show a before and after for this zone.</p>;
   }
+  const tabs: Array<["compare" | "lapse", string]> = [["compare", "Before and after"], ["lapse", "Time-lapse"]];
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Before and after</h3>
-        <BeforeAfter before={data.before} after={data.after} report={report} />
-      </div>
+    <div>
       {!report && (
-        <div>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted">Time-lapse</h3>
-          <TimeLapse frames={data.frames} gifUrl={data.gifError ? null : data.gifUrl} />
+        <div role="tablist" aria-label="Satellite views" className="mb-3 inline-flex rounded-lg border border-line bg-panel p-1">
+          {tabs.map(([key, name]) => (
+            <button
+              key={key}
+              role="tab"
+              id={`${tabsId}-${key}`}
+              aria-selected={tab === key}
+              aria-controls={`${tabsId}-panel`}
+              tabIndex={tab === key ? 0 : -1}
+              onClick={() => setTab(key)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowRight" || e.key === "ArrowLeft") setTab(tab === "compare" ? "lapse" : "compare");
+              }}
+              className={`tap rounded-md px-4 text-base font-medium transition-colors ${tab === key ? "bg-background shadow-sm" : "text-muted"}`}
+            >
+              {name}
+            </button>
+          ))}
         </div>
       )}
-      <p className="text-xs text-muted">
+      <div role={report ? undefined : "tabpanel"} id={`${tabsId}-panel`} aria-labelledby={`${tabsId}-${tab}`}>
+        {report || tab === "compare" ? (
+          <BeforeAfter before={data.before} after={data.after} report={report} />
+        ) : (
+          <TimeLapse frames={data.frames} gifUrl={data.gifError ? null : data.gifUrl} />
+        )}
+      </div>
+      <p className="mt-3 text-base text-muted">
         {data.note}
-        {data.skippedYears.length > 0 && ` Skipped for lack of clear imagery: ${data.skippedYears.join(", ")}.`}
+        {data.skippedYears.length > 0 && ` Years with no clear image: ${data.skippedYears.join(", ")}.`}
       </p>
     </div>
   );

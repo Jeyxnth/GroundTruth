@@ -1,44 +1,51 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens. Survey-office mood: warm paper and ink by day (used outdoors in sunlight),
+ * cool near-black at night. One accent (deep teal = water). Data colours always come with a text label or pattern.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #14202b;
-  --muted: #55646f;
-  --line: #d5dde3;
-  --panel: #f5f8fa;
-  --accent: #0b5cad;
+  --background: #f6f4ee;
+  --surface: #fbfaf6;
+  --foreground: #1a232c;
+  --muted: #5b6670;
+  --line: #d9d4c7;
+  --panel: #ece9df;
+  --accent: #0f5b66;
   --accent-ink: #ffffff;
-  /* data colours: colour-blind-safe set; every use also has a text label or pattern */
   --c-water: #2b6cb0;
   --c-veg: #3f9a55;
-  --c-bare: #c9a45c;
+  --c-bare: #b8923f;
   --c-built: #6b4f7a;
-  --band-low: #1f7a4d;
-  --band-moderate: #b26a00;
-  --band-high: #b3261e;
+  --band-low: #1f6f4a;
+  --band-moderate: #8f5400;
+  --band-high: #a82a22;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d151c;
-    --foreground: #e6edf2;
-    --muted: #9fb0bc;
-    --line: #2a3a47;
-    --panel: #14202a;
-    --accent: #6db3f2;
-    --accent-ink: #0d151c;
+    --background: #0e151b;
+    --surface: #131c24;
+    --foreground: #e7edf1;
+    --muted: #9daeba;
+    --line: #26343f;
+    --panel: #1a252e;
+    --accent: #5fc1cf;
+    --accent-ink: #0e151b;
     --c-water: #5aa2e6;
     --c-veg: #62c07a;
     --c-bare: #d9b96f;
     --c-built: #b08ac4;
-    --band-low: #55c28a;
-    --band-moderate: #f0a440;
-    --band-high: #ff8a80;
+    --band-low: #5cc795;
+    --band-moderate: #f0a845;
+    --band-high: #ff8f85;
   }
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-line: var(--line);
@@ -46,60 +53,113 @@
   --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-newsreader);
 }
+
+html { -webkit-text-size-adjust: 100%; color-scheme: light dark; }
+button, a, input, summary, label, [role="tab"] { touch-action: manipulation; }
+
+.skip-link { position: absolute; left: 0.75rem; top: -4rem; z-index: 50; padding: 0.75rem 1rem; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.skip-link:focus { top: 0.75rem; }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Visible keyboard focus everywhere */
-:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+h1, h2, .font-display {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 500;
+  text-wrap: balance;
+  letter-spacing: -0.01em;
 }
+p, li { text-wrap: pretty; }
 
-/* Skeleton shimmer (static when the user prefers reduced motion) */
+/* Browser surfaces that otherwise ship with defaults */
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+a { text-underline-offset: 3px; text-decoration-thickness: 1px; }
+input, button, select, textarea { font: inherit; }
+input::placeholder { color: var(--muted); opacity: 0.8; }
+input[type="range"], input[type="checkbox"] { accent-color: var(--accent); }
+* { scrollbar-color: var(--line) transparent; }
+
+/* Controls: at least 44 px to touch */
+.tap { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.btn {
+  min-height: 44px; padding: 0 1.1rem; border-radius: 8px; font-weight: 500;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  transition: background-color 150ms var(--ease-out), transform 100ms var(--ease-out);
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-ghost { border: 1px solid var(--line); background: var(--surface); }
+.btn-ghost:hover { background: var(--panel); }
+@media (hover: hover) { .btn-primary:hover { filter: brightness(1.08); } }
+
+/* Range inputs with a 44 px hit area and a visible 24 px thumb */
+input[type="range"] { width: 100%; height: 44px; background: transparent; cursor: pointer; }
+
+/* Map controls and attribution sized for thumbs */
+.maplibregl-ctrl-group button, .maplibregl-ctrl-attrib-button { width: 44px !important; height: 44px !important; }
+.maplibregl-ctrl-attrib { font-size: 12px !important; }
+.maplibregl-ctrl-scale { font-size: 12px !important; }
+
+/* Skeleton shimmer (static for reduced motion) */
 .skeleton {
   background: linear-gradient(90deg, var(--panel) 25%, var(--line) 37%, var(--panel) 63%);
   background-size: 400% 100%;
   animation: shimmer 1.4s ease infinite;
   border-radius: 6px;
 }
-@keyframes shimmer {
-  0% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
-}
+@keyframes shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+/* The one authored moment: the verdict arriving */
+@keyframes verdict-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.verdict-in { animation: verdict-in 320ms var(--ease-out) both; }
+@keyframes fill-in { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fill-in 180ms ease-out both; }
+
+details > summary { cursor: pointer; list-style: none; min-height: 44px; display: flex; align-items: center; gap: 0.5rem; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before { content: ""; width: 0.5rem; height: 0.5rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform 150ms var(--ease-out); }
+details[open] > summary::before { transform: rotate(45deg); }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+  /* Reduced motion keeps state changes visible with short opacity fades; it removes movement, shimmer and scaling. */
+  html { scroll-behavior: auto; }
   .skeleton { animation: none; }
+  .verdict-in { animation: fill-in 140ms linear both; }
+  .fade-in { animation-duration: 120ms; }
+  .btn:active { transform: none; }
+  .btn { transition: none; }
+  details > summary::before { transition: none; }
 }
+
+/* Reading measure: prose never runs wider than about 70 characters. */
+main p, main li, main figcaption { max-inline-size: 54ch; }
 
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 
-/* Print: clean single-column document, no controls */
+/* Print: a clean document */
 @media print {
   @page { margin: 14mm; }
-  :root { --background: #fff; --foreground: #000; --muted: #333; --line: #bbb; --panel: #fff; }
+  :root { --background: #fff; --surface: #fff; --foreground: #000; --muted: #333; --line: #bbb; --panel: #f2f2f2; --band-moderate: #7a4800; }
   body { background: #fff !important; color: #000 !important; font-size: 11pt; }
   .no-print, nav, button, input, select, .maplibregl-ctrl { display: none !important; }
   .print-only { display: block !important; }
-  .section { break-inside: avoid; page-break-inside: avoid; border: 1px solid #bbb !important; box-shadow: none !important; }
+  .section { break-inside: avoid; page-break-inside: avoid; }
   .skeleton { animation: none; }
   a { color: #000; text-decoration: none; }
   details > summary { display: none; }
-  details[open] > *:not(summary), details > *:not(summary) { display: block; }
+  details > *:not(summary) { display: block; }
 }
 .print-only { display: none; }
