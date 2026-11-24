@@ -1,0 +1,148 @@
+{
+  "site": {
+    "id": "dharampeth-nagpur",
+    "name": "Dharampeth",
+    "city": "Nagpur",
+    "lat": 21.14,
+    "lng": 79.065
+  },
+  "transition": {
+    "humanFillingLikely": false,
+    "waterFromYear": null,
+    "waterUntilYear": null,
+    "filledFromYear": null,
+    "builtFromYear": null,
+    "gapYears": [
+      1985,
+      1986,
+      1987,
+      1996
+    ],
+    "kind": "none",
+    "runs": [
+      {
+        "stage": "bare",
+        "startYear": 1988,
+        "endYear": 1995
+      },
+      {
+        "stage": "vegetation",
+        "startYear": 1997,
+        "endYear": 1997
+      },
+      {
+        "stage": "bare",
+        "startYear": 1998,
+        "endYear": 2026
+      }
+    ],
+    "latestStage": "bare",
+    "description": "No sustained water period was detected in the land-cover record, so no water-to-land change applies."
+  },
+  "risk": {
+    "score": 0,
+    "band": "Low",
+    "factors": [
+      {
+        "id": "everWater",
+        "name": "Water history",
+        "points": 0,
+        "maxPoints": 25,
+        "available": true,
+        "reason": "No water was detected in this zone in any observed year."
+      },
+      {
+        "id": "permanence",
+        "name": "Permanent vs seasonal water",
+        "points": 0,
+        "maxPoints": 15,
+        "available": true,
+        "reason": "No water, so there is no permanent or seasonal water body here."
+      },
+      {
+        "id": "recency",
+        "name": "How recently it was filled",
+        "points": 0,
+        "maxPoints": 20,
+        "available": true,
+        "reason": "No water history, so nothing was filled."
+      },
+      {
+        "id": "distance",
+        "name": "Distance to current water",
+        "points": 0,
+        "maxPoints": 10,
+        "available": true,
+        "reason": "The zone has no water history, so nearby water does not add to the screening risk."
+      },
+      {
+        "id": "elevation",
+        "name": "Relative elevation",
+        "points": 0,
+        "maxPoints": 20,
+        "available": true,
+        "reason": "The zone is not lower than its surroundings within 1 km."
+      },
+      {
+        "id": "flooding",
+        "name": "Recent seasonal flooding",
+        "points": 0,
+        "maxPoints": 10,
+        "available": true,
+        "reason": "No seasonal water was seen in the zone in the last 5 observed years."
+      }
+    ],
+    "coverage": 1,
+    "partial": false
+  },
+  "facts": {
+    "location": {
+      "label": "Dharampeth, Nagpur",
+      "inIndia": true
+    },
+    "analysis": {
+      "radiusM": 150,
+      "firstYearAnalysed": 1985,
+      "lastYearAnalysed": 2026,
+      "seasonWindow": "Jan to Mar",
+      "surroundingsRadiusKm": 1
+    },
+    "water": {
+      "everWater": false,
+      "classification": "never",
+      "yearsWithWater": 0,
+      "yearsObserved": 38,
+      "firstWaterYear": null,
+      "lastWaterYear": null,
+      "peakWaterSharePercent": 0,
+      "currentlyWater": false,
+      "distanceToCurrentWaterM": 1371
+    },
+    "transition": {
+      "kind": "none",
+      "humanFillingLikely": false,
+      "waterFromYear": null,
+      "waterUntilYear": null,
+      "filledFromYear": null,
+      "builtFromYear": null,
+      "latestStage": "bare"
+    },
+    "elevation": {
+      "relativeElevationM": 2.4,
+      "isLocalDepression": false
+    },
+    "risk": {
+      "score": 0,
+      "maxScore": 100,
+      "band": "Low",
+      "topFactors": [],
+      "unavailableFactors": []
+    }
+  },
+  "summary": {
+    "text": "No water was detected in this zone in any of the 38 observed years of satellite record. No water-to-land change was detected in the land-cover record. The zone is not lower than its surroundings within 1 km. The screening risk score is 0 out of 100, which is Low. This is a screening result from satellite data, so verify it against official land records before deciding.",
+    "source": "template",
+    "fallbackReason": "ANTHROPIC_API_KEY is not set",
+    "model": null
+  }
+}

@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "ee:check": "node --env-file-if-exists=.env.local --import tsx scripts/ee-check.ts"
+    "ee:check": "node --env-file-if-exists=.env.local --import tsx scripts/ee-check.ts",
+    "sample": "node --env-file-if-exists=.env.local --import tsx scripts/sample-output.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.12.0",

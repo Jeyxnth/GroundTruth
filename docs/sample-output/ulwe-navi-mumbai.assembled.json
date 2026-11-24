@@ -1,0 +1,180 @@
+{
+  "site": {
+    "id": "ulwe-navi-mumbai",
+    "name": "Ulwe",
+    "city": "Navi Mumbai",
+    "lat": 18.9777,
+    "lng": 73.026
+  },
+  "transition": {
+    "humanFillingLikely": true,
+    "waterFromYear": 1993,
+    "waterUntilYear": 2004,
+    "filledFromYear": null,
+    "builtFromYear": 2005,
+    "gapYears": [
+      1985,
+      1986,
+      1987,
+      1989,
+      1996
+    ],
+    "runs": [
+      {
+        "stage": "built",
+        "startYear": 1988,
+        "endYear": 1992
+      },
+      {
+        "stage": "water",
+        "startYear": 1993,
+        "endYear": 2004
+      },
+      {
+        "stage": "built",
+        "startYear": 2005,
+        "endYear": 2020
+      },
+      {
+        "stage": "water",
+        "startYear": 2021,
+        "endYear": 2021
+      },
+      {
+        "stage": "bare",
+        "startYear": 2022,
+        "endYear": 2026
+      }
+    ],
+    "latestStage": "bare",
+    "kind": "water-to-built",
+    "description": "Water 1993 to 2004, then built-up from 2005 with no separate bare-soil stage visible in the yearly record."
+  },
+  "risk": {
+    "score": 65,
+    "band": "High",
+    "factors": [
+      {
+        "id": "everWater",
+        "name": "Water history",
+        "points": 22.8,
+        "maxPoints": 25,
+        "available": true,
+        "reason": "Water covered at least 10% of the zone in 17 of 33 observed years (peak 86%)."
+      },
+      {
+        "id": "permanence",
+        "name": "Permanent vs seasonal water",
+        "points": 8.3,
+        "maxPoints": 15,
+        "available": true,
+        "reason": "Mostly seasonal water: permanent water bodies carry stronger legal protection and deeper fill."
+      },
+      {
+        "id": "recency",
+        "name": "How recently it was filled",
+        "points": 12,
+        "maxPoints": 20,
+        "available": true,
+        "reason": "The water was filled or built over from about 2005, 21 years ago."
+      },
+      {
+        "id": "distance",
+        "name": "Distance to current water",
+        "points": 10,
+        "maxPoints": 10,
+        "available": true,
+        "reason": "Current water is inside the zone."
+      },
+      {
+        "id": "elevation",
+        "name": "Relative elevation",
+        "points": 2.2,
+        "maxPoints": 20,
+        "available": true,
+        "reason": "The zone sits about 0.3 m below its surroundings within 1 km, so water drains toward it."
+      },
+      {
+        "id": "flooding",
+        "name": "Recent seasonal flooding",
+        "points": 10,
+        "maxPoints": 10,
+        "available": true,
+        "reason": "Seasonal water covered up to 42% of the zone in the last 5 observed years."
+      }
+    ],
+    "coverage": 1,
+    "partial": false
+  },
+  "facts": {
+    "location": {
+      "label": "Ulwe, Navi Mumbai",
+      "inIndia": true
+    },
+    "analysis": {
+      "radiusM": 150,
+      "firstYearAnalysed": 1985,
+      "lastYearAnalysed": 2026,
+      "seasonWindow": "Jan to Mar",
+      "surroundingsRadiusKm": 1
+    },
+    "water": {
+      "everWater": true,
+      "classification": "seasonal",
+      "yearsWithWater": 17,
+      "yearsObserved": 33,
+      "firstWaterYear": 1990,
+      "lastWaterYear": 2021,
+      "peakWaterSharePercent": 86,
+      "currentlyWater": true,
+      "distanceToCurrentWaterM": 0
+    },
+    "transition": {
+      "kind": "water-to-built",
+      "humanFillingLikely": true,
+      "waterFromYear": 1993,
+      "waterUntilYear": 2004,
+      "filledFromYear": null,
+      "builtFromYear": 2005,
+      "latestStage": "bare"
+    },
+    "elevation": {
+      "relativeElevationM": -0.3,
+      "isLocalDepression": false
+    },
+    "risk": {
+      "score": 65,
+      "maxScore": 100,
+      "band": "High",
+      "topFactors": [
+        {
+          "name": "Water history",
+          "points": 23,
+          "maxPoints": 25
+        },
+        {
+          "name": "How recently it was filled",
+          "points": 12,
+          "maxPoints": 20
+        },
+        {
+          "name": "Distance to current water",
+          "points": 10,
+          "maxPoints": 10
+        },
+        {
+          "name": "Recent seasonal flooding",
+          "points": 10,
+          "maxPoints": 10
+        }
+      ],
+      "unavailableFactors": []
+    }
+  },
+  "summary": {
+    "text": "Satellite records show water in this zone in 17 of 33 observed years, between 1990 and 2021, and it was mostly seasonal water at a peak of 86% of the zone. Water was present until 2004 and the zone was built-up from 2005. The zone sits about 0.3 m below its surroundings within 1 km. The screening risk score is 65 out of 100, which is High. This is a screening result from satellite data, so verify it against official land records before deciding.",
+    "source": "template",
+    "fallbackReason": "ANTHROPIC_API_KEY is not set",
+    "model": null
+  }
+}

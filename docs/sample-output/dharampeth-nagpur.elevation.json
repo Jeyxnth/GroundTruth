@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "data": {
+    "available": true,
+    "unavailableReason": null,
+    "dataset": "COPERNICUS/DEM/GLO30",
+    "zoneMeanM": 311.54,
+    "zoneMinM": 306.64,
+    "surroundingsMeanM": 309.11,
+    "surroundingsMinM": 299.83,
+    "surroundingsP10M": 303.81,
+    "surroundingsP90M": 314.81,
+    "relativeElevationM": 2.43,
+    "surroundingsLowerShare": 0.728,
+    "isLocalDepression": false,
+    "surroundingsRadiusM": 1000
+  },
+  "meta": {
+    "notes": [],
+    "generatedAt": "2026-11-24T11:29:25.820Z",
+    "lat": 21.14,
+    "lng": 79.065,
+    "radiusM": 150
+  }
+}

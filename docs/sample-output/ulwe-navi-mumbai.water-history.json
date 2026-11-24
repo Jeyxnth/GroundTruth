@@ -1,0 +1,315 @@
+{
+  "ok": true,
+  "data": {
+    "dataset": {
+      "occurrence": "JRC/GSW1_4/GlobalSurfaceWater",
+      "yearly": "JRC/GSW1_4/YearlyHistory"
+    },
+    "yearly": [
+      {
+        "year": 1984,
+        "observedFraction": 0.1359149220277552,
+        "seasonalFraction": 0,
+        "permanentFraction": 0,
+        "waterFraction": 0
+      },
+      {
+        "year": 1985,
+        "observedFraction": 0.1359149220277552,
+        "seasonalFraction": 0,
+        "permanentFraction": 0,
+        "waterFraction": 0
+      },
+      {
+        "year": 1986,
+        "observedFraction": 0.1359149220277552,
+        "seasonalFraction": 0,
+        "permanentFraction": 0,
+        "waterFraction": 0
+      },
+      {
+        "year": 1987,
+        "observedFraction": 0.1359149220277552,
+        "seasonalFraction": 0,
+        "permanentFraction": 0,
+        "waterFraction": 0
+      },
+      {
+        "year": 1988,
+        "observedFraction": 0.1359149220277552,
+        "seasonalFraction": 0,
+        "permanentFraction": 0,
+        "waterFraction": 0
+      },
+      {
+        "year": 1989,
+        "observedFraction": 1,
+        "seasonalFraction": 0.036482426439029034,
+        "permanentFraction": 0.012160808813009679,
+        "waterFraction": 0.048643235252038716
+      },
+      {
+        "year": 1990,
+        "observedFraction": 1,
+        "seasonalFraction": 0.08793933902427391,
+        "permanentFraction": 0.034670227478658965,
+        "waterFraction": 0.12260956650293287
+      },
+      {
+        "year": 1991,
+        "observedFraction": 1,
+        "seasonalFraction": 0.03476560637131002,
+        "permanentFraction": 0,
+        "waterFraction": 0.03476560637131002
+      },
+      {
+        "year": 1992,
+        "observedFraction": 1,
+        "seasonalFraction": 0.30483094091277596,
+        "permanentFraction": 0,
+        "waterFraction": 0.30483094091277596
+      },
+      {
+        "year": 1993,
+        "observedFraction": 1,
+        "seasonalFraction": 0.09547427154370736,
+        "permanentFraction": 0,
+        "waterFraction": 0.09547427154370736
+      },
+      {
+        "year": 1994,
+        "observedFraction": 1,
+        "seasonalFraction": 0.6568267442414993,
+        "permanentFraction": 0.20725833373074534,
+        "waterFraction": 0.8640850779722447
+      },
+      {
+        "year": 1995,
+        "observedFraction": 1,
+        "seasonalFraction": 0.071152653917688,
+        "permanentFraction": 0.04683103629166865,
+        "waterFraction": 0.11798369020935665
+      },
+      {
+        "year": 1996,
+        "observedFraction": 1,
+        "seasonalFraction": 0.6100910868424817,
+        "permanentFraction": 0,
+        "waterFraction": 0.6100910868424817
+      },
+      {
+        "year": 1997,
+        "observedFraction": 1,
+        "seasonalFraction": 0.6027946015546758,
+        "permanentFraction": 0.2437407601697744,
+        "waterFraction": 0.8465353617244502
+      },
+      {
+        "year": 1998,
+        "observedFraction": 1,
+        "seasonalFraction": 0.5446134770375315,
+        "permanentFraction": 0.31947160093471305,
+        "waterFraction": 0.8640850779722445
+      },
+      {
+        "year": 1999,
+        "observedFraction": 1,
+        "seasonalFraction": 0.5446134770375315,
+        "permanentFraction": 0.31947160093471305,
+        "waterFraction": 0.8640850779722445
+      },
+      {
+        "year": 2000,
+        "observedFraction": 1,
+        "seasonalFraction": 0.3975392245696027,
+        "permanentFraction": 0.2427392817969383,
+        "waterFraction": 0.640278506366541
+      },
+      {
+        "year": 2001,
+        "observedFraction": 1,
+        "seasonalFraction": 0.3975392245696027,
+        "permanentFraction": 0.2427392817969383,
+        "waterFraction": 0.640278506366541
+      },
+      {
+        "year": 2002,
+        "observedFraction": 1,
+        "seasonalFraction": 0.4097000333826124,
+        "permanentFraction": 0.2305784729839286,
+        "waterFraction": 0.640278506366541
+      },
+      {
+        "year": 2003,
+        "observedFraction": 1,
+        "seasonalFraction": 0.44699318040917535,
+        "permanentFraction": 0.08612714006390385,
+        "waterFraction": 0.5331203204730792
+      },
+      {
+        "year": 2004,
+        "observedFraction": 1,
+        "seasonalFraction": 0.40006676522485574,
+        "permanentFraction": 0.1104487576899232,
+        "waterFraction": 0.510515522914779
+      },
+      {
+        "year": 2005,
+        "observedFraction": 1,
+        "seasonalFraction": 0.13987314607277407,
+        "permanentFraction": 0,
+        "waterFraction": 0.13987314607277407
+      },
+      {
+        "year": 2006,
+        "observedFraction": 1,
+        "seasonalFraction": 0.0619962802231866,
+        "permanentFraction": 0.010348609852639608,
+        "waterFraction": 0.07234489007582622
+      },
+      {
+        "year": 2007,
+        "observedFraction": 1,
+        "seasonalFraction": 0.060184081262816526,
+        "permanentFraction": 0,
+        "waterFraction": 0.060184081262816526
+      },
+      {
+        "year": 2008,
+        "observedFraction": 1,
+        "seasonalFraction": 0.060184081262816526,
+        "permanentFraction": 0,
+        "waterFraction": 0.060184081262816526
+      },
+      {
+        "year": 2009,
+        "observedFraction": 1,
+        "seasonalFraction": 0.08221660546521053,
+        "permanentFraction": 0,
+        "waterFraction": 0.08221660546521053
+      },
+      {
+        "year": 2010,
+        "observedFraction": 1,
+        "seasonalFraction": 0.12203729314702656,
+        "permanentFraction": 0.01316228718584577,
+        "waterFraction": 0.13519958033287233
+      },
+      {
+        "year": 2011,
+        "observedFraction": 1,
+        "seasonalFraction": 0.06886356049406264,
+        "permanentFraction": 0.011683914349754397,
+        "waterFraction": 0.08054747484381704
+      },
+      {
+        "year": 2012,
+        "observedFraction": 1,
+        "seasonalFraction": 0.036291668653726926,
+        "permanentFraction": 0,
+        "waterFraction": 0.036291668653726926
+      },
+      {
+        "year": 2013,
+        "observedFraction": 1,
+        "seasonalFraction": 0,
+        "permanentFraction": 0,
+        "waterFraction": 0
+      },
+      {
+        "year": 2014,
+        "observedFraction": 1,
+        "seasonalFraction": 0.01883733129858362,
+        "permanentFraction": 0,
+        "waterFraction": 0.01883733129858362
+      },
+      {
+        "year": 2015,
+        "observedFraction": 1,
+        "seasonalFraction": 0.1402546616433783,
+        "permanentFraction": 0,
+        "waterFraction": 0.1402546616433783
+      },
+      {
+        "year": 2016,
+        "observedFraction": 1,
+        "seasonalFraction": 0.03982068768181601,
+        "permanentFraction": 0,
+        "waterFraction": 0.03982068768181601
+      },
+      {
+        "year": 2017,
+        "observedFraction": 1,
+        "seasonalFraction": 0.05646430444942534,
+        "permanentFraction": 0,
+        "waterFraction": 0.05646430444942534
+      },
+      {
+        "year": 2018,
+        "observedFraction": 1,
+        "seasonalFraction": 0.053364490438265993,
+        "permanentFraction": 0,
+        "waterFraction": 0.053364490438265993
+      },
+      {
+        "year": 2019,
+        "observedFraction": 1,
+        "seasonalFraction": 0.04563880013353044,
+        "permanentFraction": 0,
+        "waterFraction": 0.04563880013353044
+      },
+      {
+        "year": 2020,
+        "observedFraction": 1,
+        "seasonalFraction": 0.09089608469645666,
+        "permanentFraction": 0,
+        "waterFraction": 0.09089608469645666
+      },
+      {
+        "year": 2021,
+        "observedFraction": 1,
+        "seasonalFraction": 0.4159473508512565,
+        "permanentFraction": 0,
+        "waterFraction": 0.4159473508512565
+      }
+    ],
+    "gsw": {
+      "occurrenceMean": 5.578183245046112,
+      "occurrenceMax": 29,
+      "fractionEverWater": 0.44084755738669856,
+      "seasonalityMaxMonths": 3,
+      "validFraction": 0.08900178793505613
+    },
+    "summary": {
+      "everWater": true,
+      "classification": "seasonal",
+      "yearsObserved": 33,
+      "yearsWithWater": 17,
+      "firstWaterYear": 1990,
+      "lastWaterYear": 2021,
+      "peakWaterFraction": 0.8640850779722447,
+      "peakYear": 1994,
+      "recentSeasonalFraction": 0.4159473508512565,
+      "currentlyWater": true,
+      "noDataYears": [
+        1984,
+        1985,
+        1986,
+        1987,
+        1988
+      ],
+      "distanceToCurrentWaterM": 0,
+      "distanceBeyondSearch": false
+    },
+    "distanceSearchRadiusM": 2000
+  },
+  "meta": {
+    "notes": [
+      "5 year(s) have too little valid JRC data and are shown as gaps."
+    ],
+    "generatedAt": "2026-11-24T11:28:39.798Z",
+    "lat": 18.9777,
+    "lng": 73.026,
+    "radiusM": 150
+  }
+}
