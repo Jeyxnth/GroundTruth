@@ -95,10 +95,11 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
     // Pin the composite to its native grid first (a composite has no fixed projection, and resampling one without that
     // flattens it), then resample bicubically so enlarging gives smooth detail instead of hard squares.
     const { image } = buildComposite(ee, sensor, zone, year, season, "all", { native: true });
-    return image
-      .reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 })
-      .resample("bicubic")
-      .visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.24, gamma: 1.15 });
+    // Landsat squares are 30 m. Smoothing them only makes mud, so they are drawn as crisp squares (nearest neighbour):
+    // blocky but exact, and the eye can read edges and colour. Sentinel-2 (10 m) is enlarged smoothly.
+    const base = image.select(["red", "green", "blue"]).reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 });
+    const out = sensor === "landsat" ? base : base.resample("bicubic");
+    return out.visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.22, gamma: 1.1 });
   };
 
   const frames = await mapPool(usable, 8, async (u): Promise<ImageryFrame> => {

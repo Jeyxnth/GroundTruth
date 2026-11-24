@@ -113,7 +113,7 @@ function BeforeAfter({ before, data, report }: { before: ImageryFrame; data: Ima
         />
       </label>
       <p className="text-base text-muted">
-        {before.year} is Landsat ({sensorName(before.sensor) === "Landsat" ? "30 m squares, so soft" : "10 m squares"}). Today is Esri high-resolution imagery (Maxar and others), dated within the last few years.
+        {before.year} is Landsat ({sensorName(before.sensor) === "Landsat" ? "each visible square is 30 m across, the finest detail that satellite recorded" : "10 m squares"}). Today is Esri high-resolution imagery (Maxar and others), dated within the last few years.
       </p>
     </div>
   );
