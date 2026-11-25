@@ -6,7 +6,7 @@ import type { SummaryResult } from "@/lib/llm";
 export function SummaryCard({ data }: { data: SummaryResult }) {
   return (
     <div>
-      <p className="text-base leading-relaxed" data-testid="summary-text">{data.text}</p>
+      <p className="text-lg leading-relaxed" data-testid="summary-text">{data.text}</p>
       <p className="mt-2 text-xs text-muted">
         {data.source === "llm"
           ? "Written by an AI model from the computed facts only. Every year and number it uses is checked against those facts."

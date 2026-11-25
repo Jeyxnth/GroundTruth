@@ -35,7 +35,7 @@ export function SiteHeader({ overHero = false, chip, showChip = false, progress 
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <div className="mx-auto flex h-full w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex h-full w-full max-w-[1440px] items-center gap-3 px-4 sm:px-8">
         <Link href="/" translate="no" className="tap -ml-2 px-2 font-display text-xl font-semibold tracking-tight">
           GroundTruth
         </Link>

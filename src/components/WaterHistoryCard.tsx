@@ -30,15 +30,15 @@ export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
   const yearly = data.yearly;
   const first = yearly[0]?.year ?? 1984;
   const last = yearly[yearly.length - 1]?.year ?? 2021;
-  const H = 140;
-  const M = { top: 8, right: 6, bottom: 26, left: 40 };
+  const H = 230;
+  const M = { top: 10, right: 6, bottom: 30, left: 48 };
   const plotW = width - M.left - M.right;
   const plotH = H - M.top - M.bottom;
   const bw = plotW / yearly.length;
   const x = (yr: number) => M.left + (yr - first) * bw;
   const y = (v: number) => M.top + plotH * (1 - v);
   const gap = new Set(s.noDataYears);
-  const step = width < 420 ? 10 : 5;
+  const step = width < 480 ? 10 : 5;
   const ticks: number[] = [];
   for (let t = Math.ceil(first / step) * step; t <= last; t += step) ticks.push(t);
 
@@ -81,7 +81,7 @@ export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
         {[0, 0.5, 1].map((g) => (
           <g key={g}>
             <line x1={M.left} x2={M.left + plotW} y1={y(g)} y2={y(g)} stroke="var(--line)" />
-            <text x={M.left - 6} y={y(g) + 4} textAnchor="end" fontSize="12" fill="var(--muted)">
+            <text x={M.left - 6} y={y(g) + 4} textAnchor="end" fontSize="15" fill="var(--muted)">
               {Math.round(g * 100)}%
             </text>
           </g>
@@ -102,7 +102,7 @@ export function WaterHistoryCard({ data }: { data: WaterHistoryData }) {
           ),
         )}
         {ticks.map((t) => (
-          <text key={t} x={x(t) + bw / 2} y={H - 8} textAnchor="middle" fontSize="12" fill="var(--muted)" fontFamily="var(--font-geist-mono)">
+          <text key={t} x={x(t) + bw / 2} y={H - 8} textAnchor="middle" fontSize="15" fill="var(--muted)" fontFamily="var(--font-geist-mono)">
             {t}
           </text>
         ))}

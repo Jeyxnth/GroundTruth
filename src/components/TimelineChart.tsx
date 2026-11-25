@@ -34,8 +34,8 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
   const years = landcover.years;
   const first = years[0]!.year;
   const last = years[years.length - 1]!.year;
-  const H = wide ? 300 : 240;
-  const M = { top: 12, right: wide ? 190 : 6, bottom: 28, left: 40 };
+  const H = wide ? 400 : 260;
+  const M = { top: 12, right: wide ? 260 : 6, bottom: 32, left: 48 };
   const plotW = width - M.left - M.right;
   const plotH = H - M.top - M.bottom;
   const bw = plotW / years.length;
@@ -59,7 +59,7 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
       acc += share;
       return { label: s.label, color: s.color, share, y: y(mid) };
     }).reverse();
-    const ys = spread(raw.map((r) => r.y), 18, M.top + 8, M.top + plotH);
+    const ys = spread(raw.map((r) => r.y), 24, M.top + 8, M.top + plotH);
     labels = raw.map((r, i) => ({ ...r, y: ys[i]! }));
   }
 
@@ -89,7 +89,7 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
         {[0, 0.5, 1].map((g) => (
           <g key={g}>
             <line x1={M.left} x2={M.left + plotW} y1={y(g)} y2={y(g)} stroke="var(--line)" />
-            <text x={M.left - 6} y={y(g) + 4} textAnchor="end" fontSize="12" fill="var(--muted)">
+            <text x={M.left - 6} y={y(g) + 4} textAnchor="end" fontSize="15" fill="var(--muted)">
               {pct(g)}
             </text>
           </g>
@@ -124,14 +124,14 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
         {firstS2 && (
           <g>
             <line x1={x(firstS2)} x2={x(firstS2)} y1={M.top} y2={M.top + plotH} stroke="#fff" strokeWidth="1" strokeDasharray="2 3" />
-            <text x={x(firstS2) - 4} y={M.top + 13} fontSize="12" fill="#fff" textAnchor="end" style={bgStroke}>
+            <text x={x(firstS2) - 4} y={M.top + 13} fontSize="15" fill="#fff" textAnchor="end" style={bgStroke}>
               Finer images start →
             </text>
           </g>
         )}
 
         {ticks.map((t) => (
-          <text key={t} x={x(t) + bw / 2} y={H - 8} textAnchor="middle" fontSize="12" fill="var(--muted)" fontFamily="var(--font-geist-mono)">
+          <text key={t} x={x(t) + bw / 2} y={H - 8} textAnchor="middle" fontSize="15" fill="var(--muted)" fontFamily="var(--font-geist-mono)">
             {t}
           </text>
         ))}
@@ -139,7 +139,7 @@ export function TimelineChart({ landcover, water, transition }: { landcover: Lan
         {labels.map((l) => (
           <g key={l.label}>
             <rect x={M.left + plotW + 10} y={l.y - 9} width="11" height="11" fill={l.color} />
-            <text x={M.left + plotW + 26} y={l.y + 1} fontSize="13" fill="var(--foreground)">
+            <text x={M.left + plotW + 26} y={l.y + 1} fontSize="16" fill="var(--foreground)">
               {l.label} {pct(l.share)}
             </text>
           </g>

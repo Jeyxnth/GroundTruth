@@ -65,3 +65,9 @@ Artifacts, each tied to the answer that calls for it:
 - Why: pictures from 1999 to 2013 resolve 15 to 30 m, so building-level detail comes from the Esri archive (2014, 2018, 2022); names come from OpenFreeMap because CARTO now requires a key; the water layer is off by default so it does not hide buildings
 - Rejected: sharpening or pixel-squares for old Landsat frames (noise, blocks)
 - Rests on: rendered screenshots of the Ulwe demo site
+
+## 2026-11-25 · Wider two-column layout and a larger type scale
+- Decided by: the designer (approved for deploy after rendered screenshots)
+- Why: the designer reported empty space and small text; body is now 18px with nothing under 15px, and desktop evidence sits side by side
+- Rejected: a single narrow column with tall reserved heights
+- Rests on: docs/design-review/round3

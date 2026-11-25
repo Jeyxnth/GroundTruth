@@ -100,16 +100,36 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
     </SectionCard>
   );
 
+  // Wide screens set related evidence side by side; the report and phones stay in one column.
+  const pair = report ? "space-y-10" : "grid items-start gap-10 lg:grid-cols-12 lg:gap-x-12";
   const chapters: ReactNode = (
-    <div className={`mx-auto w-full max-w-5xl space-y-20 px-4 sm:px-6 ${report ? "py-8" : "py-16 sm:py-20"}`}>
+    <div className={`mx-auto w-full space-y-12 px-4 sm:px-8 ${report ? "max-w-5xl py-8" : "max-w-[1440px] py-10 lg:py-12"}`}>
+      <div className={pair}>
+        <div className="min-w-0 space-y-10 lg:col-span-7">
       <Reveal>
-        <SectionCard id="imagery" title="Then and now" section={a.imagery} reserve={rs("min-h-[850px] lg:min-h-[1080px]")} loadingContent={<div className="skeleton aspect-[3/2] w-full" />}>
+        <SectionCard id="imagery" title="Then and now" section={a.imagery} reserve={rs("min-h-[880px] lg:min-h-[900px]")} loadingContent={<div className="skeleton aspect-[3/2] w-full" />}>
           {(d) => <ImageryPanel data={d} report={report} />}
         </SectionCard>
       </Reveal>
-
+        </div>
+        <div className="min-w-0 space-y-10 lg:col-span-5">
       <Reveal>
-        <SectionCard id="timeline" title="When it changed" section={a.landcover} reserve={rs("min-h-[840px] lg:min-h-[700px]")}>
+        <SectionCard id="summary" title="In plain words" section={a.summary} reserve={rs("min-h-[600px] lg:min-h-[430px]")}>
+          {(s) => <SummaryCard data={s} />}
+        </SectionCard>
+      </Reveal>
+      <Reveal>
+        <section className="section border-t border-line pt-5" aria-labelledby="factors-title">
+          <h2 id="factors-title" className="text-2xl">
+            How the score is built
+          </h2>
+          <div className="min-h-[64px]">{risk && <FactorList risk={risk} alwaysOpen />}</div>
+        </section>
+      </Reveal>
+        </div>
+      </div>
+      <Reveal>
+        <SectionCard id="timeline" title="When it changed" section={a.landcover} reserve={rs("min-h-[960px] lg:min-h-[810px]")}>
           {(d) => (
             <>
               {a.transition && (
@@ -122,44 +142,31 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
           )}
         </SectionCard>
       </Reveal>
-
+      <div className={pair}>
+        <div className="min-w-0 space-y-10 lg:col-span-7">
       <Reveal>
-        <SectionCard id="water" title="How often it was water" section={a.water} reserve={rs("min-h-[640px] lg:min-h-[520px]")}>
+        <SectionCard id="water" title="How often it was water" section={a.water} reserve={rs("min-h-[800px] lg:min-h-[620px]")}>
           {(d) => <WaterHistoryCard data={d} />}
         </SectionCard>
       </Reveal>
-
+        </div>
+        <div className="min-w-0 space-y-10 lg:col-span-5">
       <Reveal>
-        <SectionCard id="elevation" title="How low it sits" section={a.elevation} reserve={rs("min-h-[420px] lg:min-h-[320px]")}>
+        <SectionCard id="elevation" title="How low it sits" section={a.elevation} reserve={rs("min-h-[440px] lg:min-h-[400px]")}>
           {(d) => <ElevationCard data={d} />}
         </SectionCard>
       </Reveal>
-
-      <Reveal>
-        <SectionCard id="summary" title="In plain words" section={a.summary} reserve={rs("min-h-[380px] lg:min-h-[280px]")}>
-          {(s) => <SummaryCard data={s} />}
-        </SectionCard>
-      </Reveal>
-
       <Reveal>
         <NextSteps />
       </Reveal>
-
-      <Reveal>
-        <section className="section border-t border-line pt-5" aria-labelledby="factors-title">
-          <h2 id="factors-title" className="sr-only">
-            How the score is built
-          </h2>
-          <div className="min-h-[64px]">{risk && <FactorList risk={risk} alwaysOpen={report} />}</div>
-        </section>
-      </Reveal>
-
+        </div>
+      </div>
       <Reveal>
         <section className="section border-t border-line pt-5" aria-labelledby="method-title">
           <h2 id="method-title" className="text-3xl sm:text-4xl">
             About this check
           </h2>
-          <ul className="mt-3 list-disc space-y-2 pl-5 text-base text-muted">
+          <ul className="mt-3 list-disc gap-x-12 pl-5 text-base text-muted lg:columns-2 [&>li]:mb-2 [&>li]:break-inside-avoid">
             <li>The zone is a circle of {zone.radiusM} m radius. Each square in the satellite images covers 10 to 30 m, so results describe the whole zone, not single buildings.</li>
             <li>Water record: satellite water maps, 1984 to 2021. Land types: satellite images from January to March each year, cloud removed. Years with no clear image are shown striped, never guessed.</li>
             <li>Land types are decided by a computer model checked against Google Dynamic World land maps, not against the ground.</li>
@@ -174,7 +181,7 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
   );
 
   const noteList = (notes.length > 0 || fromGps) && (
-    <div className="mx-auto w-full max-w-5xl space-y-2 px-4 pt-6 text-base sm:px-6">
+    <div className="mx-auto w-full max-w-[1440px] space-y-2 px-4 pt-6 text-base sm:px-8">
       {fromGps && (
         <p role="note" className="rounded-lg border border-line px-3 py-2">
           {ENTRY.locationAccuracy}
