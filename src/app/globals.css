@@ -112,6 +112,7 @@ input[type="range"] { width: 100%; height: 44px; background: transparent; cursor
 
 /* Map controls and attribution sized for thumbs */
 .maplibregl-ctrl-group button, .maplibregl-ctrl-attrib-button { width: 44px !important; height: 44px !important; }
+.maplibregl-ctrl-attrib-button { background-repeat: no-repeat !important; background-position: center !important; }
 .maplibregl-ctrl-attrib { font-size: 12px !important; }
 .maplibregl-ctrl-scale { font-size: 12px !important; }
 
@@ -124,10 +125,17 @@ input[type="range"] { width: 100%; height: 44px; background: transparent; cursor
 .header-chip[data-show="false"] { opacity: 0; transform: translateY(6px); pointer-events: none; }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; height: 100svh; min-height: 640px; max-height: 920px; overflow: hidden; background: #05090c; }
-.hero-scrim-top { position: absolute; inset: 0 0 auto 0; height: 55%; background: linear-gradient(180deg, rgba(3, 7, 10, 0.82) 0%, rgba(3, 7, 10, 0.5) 55%, rgba(3, 7, 10, 0) 100%); pointer-events: none; }
-.hero-sheet { background: var(--surface); box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.45); }
-@media (min-width: 1024px) { .hero { height: min(90svh, 860px); } }
+/* Title, map and verdict each have their own space; nothing is laid over anything else. */
+.hero { display: grid; grid-template-areas: "head" "verdict" "map"; padding-top: var(--header-h); }
+.hero-head { grid-area: head; padding: 20px 16px 0; }
+.hero-map { grid-area: map; position: relative; height: 62svh; min-height: 360px; background: var(--panel); }
+.hero-verdict { grid-area: verdict; padding: 20px 16px; }
+@media (min-width: 1024px) {
+  .hero { grid-template-areas: "head map" "verdict map"; grid-template-columns: minmax(360px, 430px) 1fr; grid-template-rows: auto 1fr; }
+  .hero-head, .hero-verdict { padding-inline: 28px; }
+  .hero-verdict { padding-bottom: 24px; }
+  .hero-map { position: sticky; top: var(--header-h); align-self: start; height: calc(100svh - var(--header-h)); min-height: 560px; }
+}
 
 /* ---------- Scroll reveal (varied by role, never on the first screen) ---------- */
 .reveal { transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); transition-delay: calc(var(--d, 0) * 80ms); }
@@ -197,7 +205,7 @@ main p, main li, main figcaption { max-inline-size: 54ch; }
   .section { break-inside: avoid; page-break-inside: avoid; }
   .reveal, .reveal[data-state="pending"] { opacity: 1 !important; transform: none !important; }
   .bars .bar { transform: none !important; animation: none !important; }
-  .hero { height: auto; min-height: 0; max-height: none; background: #fff; overflow: visible; }
+  .hero { display: block; }
   .skeleton { animation: none; }
   a { color: #000; text-decoration: none; }
   details > summary { display: none; }
@@ -205,6 +213,4 @@ main p, main li, main figcaption { max-inline-size: 54ch; }
 }
 .print-only { display: none; }
 
-.hero .maplibregl-ctrl-top-right { margin-top: calc(var(--header-h) + 8px); }
 .btn-header { white-space: nowrap; }
-@media (max-width: 639px) { .hero .maplibregl-ctrl-top-right { display: none; } }

@@ -14,10 +14,11 @@ import {
   type Sensor,
 } from "@/lib/ee/optical";
 
+/** Pictures start here: from 1999 Landsat 7 carries a 15 m black-and-white band that sharpens the colour. */
+export const IMAGERY_FIRST_YEAR = 1999;
 /** Imagery is only shown for years where at least this share of the zone is cloud-free. */
 const IMAGERY_MIN_VALID = 0.8;
-// Frames are 3:2 (900 m by 600 m for the default zone). They are rendered large and smoothed (bicubic from the native grid),
-// so 30 m Landsat squares read as soft detail instead of hard blocks.
+// Frames are 3:2 (900 m by 600 m for the default zone), rendered large and smoothed from their native grid.
 const FRAME_W = 720;
 const FRAME_H = 480;
 const VIEW_RADIUS_FACTOR = 2; // the frame is 3 x 2 of this many zone radii, so the surroundings are visible
@@ -26,7 +27,12 @@ export interface ImageryFrame {
   year: number;
   sensor: Sensor;
   url: string;
+  /** Ground size of the finest detail in the picture, in metres. */
+  metres: 10 | 15 | 30;
 }
+
+/** Landsat 7 (1999 to 2002) and Landsat 8 (2013 on) can be pan-sharpened. Landsat 7 after 2002 has striped gaps. */
+const canSharpen = (year: number) => year <= 2002 || year >= 2013;
 
 export interface ImageryData {
   season: { label: string };
@@ -72,7 +78,7 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
   const ee = await getEe();
   const season = seasonFromEnv();
   const lastYear = lastCompleteYear(now, season);
-  const years = Array.from({ length: lastYear - FIRST_YEAR + 1 }, (_, i) => FIRST_YEAR + i);
+  const years = Array.from({ length: lastYear - Math.max(FIRST_YEAR, IMAGERY_FIRST_YEAR) + 1 }, (_, i) => IMAGERY_FIRST_YEAR + i);
   const point = ee.Geometry.Point([lng, lat]);
   const zone = point.buffer(radiusM);
   // 3:2 rectangle around the point (Mercator keeps the pixel aspect equal to the ground aspect).
@@ -91,23 +97,56 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
   const usable = plan.filter((p): p is { year: number; sensor: Sensor; valid: number; fellBack: boolean } => p.sensor !== null);
   const skippedYears = plan.filter((p) => p.sensor === null).map((p) => p.year);
 
+  // Colour from the 30 m bands, detail from the 15 m panchromatic band (hue and saturation kept, brightness replaced).
+  const sharpened = (year: number) => {
+    const l7 = year <= 2002;
+    const rgb = l7 ? ["B3", "B2", "B1"] : ["B4", "B3", "B2"];
+    const image = ee
+      .ImageCollection(l7 ? "LANDSAT/LE07/C02/T1_TOA" : "LANDSAT/LC08/C02/T1_TOA")
+      .filterBounds(zone)
+      .filter(ee.Filter.calendarRange(year, year, "year"))
+      // Landsat 7 launched in April 1999, so the 1999 picture comes from October to December instead.
+      .filter(ee.Filter.calendarRange(year === 1999 ? 10 : season.startMonth, year === 1999 ? 12 : season.endMonth, "month"))
+      // QA_PIXEL bits 1 to 4: dilated cloud, cirrus, cloud, cloud shadow.
+      .map((i: any) => i.updateMask(i.select("QA_PIXEL").bitwiseAnd(30).eq(0)))
+      .median()
+      .reproject({ crs: "EPSG:3857", scale: 15 })
+      .resample("bicubic");
+    // Take out most of the blue-grey haze of top-of-atmosphere pictures (more in blue than in red).
+    const hsv = image.select(rgb).subtract(ee.Image.constant([0.008, 0.022, 0.042])).max(0.002).rgbToHsv();
+    return ee.Image.cat([hsv.select("hue"), hsv.select("saturation"), image.select("B8")]).hsvToRgb().visualize({ min: 0.035, max: 0.25, gamma: 1.3 });
+  };
+
+  const metresFor = (year: number, sensor: Sensor): ImageryFrame["metres"] => (sensor === "sentinel2" ? 10 : canSharpen(year) ? 15 : 30);
+
+  // Years where the sharpened picture could not be made fall back to the ordinary 30 m one.
+  const unsharpened = new Set<number>();
   const visualised = (year: number, sensor: Sensor) => {
+    if (metresFor(year, sensor) === 15 && !unsharpened.has(year)) return sharpened(year);
     // Pin the composite to its native grid first (a composite has no fixed projection, and resampling one without that
     // flattens it), then resample bicubically so enlarging gives smooth detail instead of hard squares.
     const { image } = buildComposite(ee, sensor, zone, year, season, "all", { native: true });
-    // Landsat squares are 30 m. Smoothing them only makes mud, so they are drawn as crisp squares (nearest neighbour):
-    // blocky but exact, and the eye can read edges and colour. Sentinel-2 (10 m) is enlarged smoothly.
-    const base = image.select(["red", "green", "blue"]).reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 });
-    const out = sensor === "landsat" ? base : base.resample("bicubic");
-    return out.visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.22, gamma: 1.1 });
+    return image
+      .select(["red", "green", "blue"])
+      .reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 })
+      .resample("bicubic")
+      .visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.24, gamma: 1.15 });
   };
 
   const frames = await mapPool(usable, 8, async (u): Promise<ImageryFrame> => {
-    const url = await getUrl<string>(
-      (cb) => visualised(u.year, u.sensor).getThumbURL({ region: view, dimensions: `${FRAME_W}x${FRAME_H}`, format: "jpg" }, cb as any),
-      `thumbnail ${u.year}`,
-    );
-    return { year: u.year, sensor: u.sensor, url };
+    const thumb = () =>
+      getUrl<string>(
+        (cb) => visualised(u.year, u.sensor).getThumbURL({ region: view, dimensions: `${FRAME_W}x${FRAME_H}`, format: "jpg" }, cb as any),
+        `thumbnail ${u.year}`,
+      );
+    let metres = metresFor(u.year, u.sensor);
+    const url = await thumb().catch((e) => {
+      if (metres !== 15) throw e;
+      unsharpened.add(u.year);
+      metres = 30;
+      return thumb();
+    });
+    return { year: u.year, sensor: u.sensor, url, metres };
   });
 
   let gifUrl: string | null = null;
@@ -134,7 +173,7 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
     skippedYears,
     frameBounds,
     ringFraction: (2 * radiusM) / (3 * R),
-    note: `One cloud-masked median composite per year (${seasonLabel(season)}). Years with under ${Math.round(IMAGERY_MIN_VALID * 100)}% clear coverage are skipped, not filled in. Landsat squares are 30 m, so older pictures are smooth but not sharp.`,
+    note: `One cloud-masked median composite per year (${seasonLabel(season)}). Years with under ${Math.round(IMAGERY_MIN_VALID * 100)}% clear coverage are skipped, not filled in. Pictures start in ${IMAGERY_FIRST_YEAR}; the charts and water record go further back. A 1999 picture, if shown, is from October to December.`,
   };
 }
 

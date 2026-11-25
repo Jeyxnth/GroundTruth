@@ -2,7 +2,7 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
-import type { GeoJSONSource, Map as MapLibreMap, Marker } from "maplibre-gl";
+import type { GeoJSONSource, Map as MapLibreMap, Marker, SymbolLayerSpecification } from "maplibre-gl";
 import { ENTRY } from "@/lib/copy";
 import { circlePolygon } from "@/lib/geometry";
 
@@ -11,6 +11,28 @@ export interface MapOverlay {
 }
 
 const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+// Place, road and landmark names from OpenStreetMap, served free (no key) by OpenFreeMap and drawn as sharp text.
+const NAMES = "https://tiles.openfreemap.org/planet";
+const GLYPHS = "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf";
+
+function nameLayer(id: string, sourceLayer: string, size: number, extra: Partial<SymbolLayerSpecification> & { along?: boolean } = {}): SymbolLayerSpecification {
+  const { along, ...rest } = extra;
+  return {
+    id,
+    type: "symbol",
+    source: "names",
+    "source-layer": sourceLayer,
+    layout: {
+      "text-field": ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name"]],
+      "text-font": ["Noto Sans Regular"],
+      "text-size": size,
+      "text-max-width": 8,
+      "symbol-placement": along ? "line" : "point",
+    },
+    paint: { "text-color": "#ffffff", "text-halo-color": "rgba(0,0,0,0.85)", "text-halo-width": 1.6 },
+    ...rest,
+  };
+}
 const NUDGE_DEG = 0.0003; // about 33 m per arrow-key press
 
 const prefersReducedMotion = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -31,7 +53,7 @@ function syncOverlay(map: MapLibreMap, s: Pick<State, "overlay" | "showOverlay">
   const { overlay: o, showOverlay: show } = s;
   if (o && !map.getSource("occ")) {
     map.addSource("occ", { type: "raster", tiles: [o.tileUrl], tileSize: 256, maxzoom: 15, attribution: "Water occurrence © EC JRC / Google" });
-    map.addLayer({ id: "occ-layer", type: "raster", source: "occ", paint: { "raster-opacity": 0.8, "raster-fade-duration": prefersReducedMotion() ? 0 : 300 } }, "zone-fill");
+    map.addLayer({ id: "occ-layer", type: "raster", source: "occ", paint: { "raster-opacity": 0.8, "raster-fade-duration": prefersReducedMotion() ? 0 : 300 } }, "name-poi");
   }
   if (map.getLayer("occ-layer")) map.setLayoutProperty("occ-layer", "visibility", show ? "visible" : "none");
 }
@@ -92,6 +114,8 @@ export default function MapView({
       ml.setWorkerUrl("/vendor/maplibre/worker.mjs");
       if (cancelled || !container.current) return;
       const p = latest.current;
+      // On dense screens, ask for tiles one level deeper so rooftops stay crisp.
+      const tileSize = window.devicePixelRatio >= 1.5 ? 128 : 256;
 
       const map = new ml.Map({
         container: container.current,
@@ -103,16 +127,24 @@ export default function MapView({
         canvasContextAttributes: { preserveDrawingBuffer: printable },
         style: {
           version: 8,
+          glyphs: GLYPHS,
           sources: {
             esri: {
               type: "raster",
               tiles: [ESRI],
-              tileSize: 256,
-              maxzoom: 19,
+              tileSize,
+              maxzoom: 18,
               attribution: "Imagery © Esri, Maxar, Earthstar Geographics and the GIS User Community",
             },
+            names: { type: "vector", url: NAMES, attribution: "Names © OpenStreetMap contributors, OpenFreeMap" },
           },
-          layers: [{ id: "esri", type: "raster", source: "esri" }],
+          layers: [
+            { id: "esri", type: "raster", source: "esri" },
+            nameLayer("name-poi", "poi", 12, { minzoom: 15.5, filter: ["<=", ["coalesce", ["get", "rank"], 99], 20] }),
+            nameLayer("name-road", "transportation_name", 13, { along: true }),
+            nameLayer("name-water", "water_name", 13),
+            nameLayer("name-place", "place", 16),
+          ],
         },
       });
       mapRef.current = map;

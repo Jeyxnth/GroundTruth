@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       // Thumbnail and tile URLs are signed and expire (a cached link went 401 within hours), so the cache key rotates every
       // 15 minutes: a served link is never older than that. EE caches the heavy work, so the recompute is much faster.
       const bucket = Math.floor(Date.now() / (IMAGERY_BUCKET_S * 1000));
-      const data = await cached("imagery", ["v10", bucket, lat, lng, radiusM, year], IMAGERY_BUCKET_S, async () => {
+      const data = await cached("imagery", ["v14", bucket, lat, lng, radiusM, year], IMAGERY_BUCKET_S, async () => {
         const [imagery, overlay] = await Promise.all([
           computeImagery(lat, lng, radiusM),
           getOccurrenceOverlay().then(

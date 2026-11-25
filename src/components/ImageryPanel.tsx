@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { ARCHIVE, ArchiveTiles } from "@/components/ArchiveTiles";
 import type { ImageryFrame } from "@/lib/ee/imagery";
 import type { ImageryPayload } from "@/lib/client/useAnalysis";
 import { prefersReducedMotion, useInView } from "@/lib/client/useInView";
@@ -41,6 +42,9 @@ function BeforeAfter({ before, data, report }: { before: ImageryFrame; data: Ima
   const id = useId();
   const { ref, inView } = useInView<HTMLDivElement>({ rootMargin: "0px 0px -15% 0px" });
   const after = todayUrl(data.frameBounds);
+  // What sits under "before": the earliest satellite picture, or a sharp archive photo.
+  const [pick, setPick] = useState<number>(before.year);
+  const archive = ARCHIVE.find((x) => x.year === pick);
 
   // One sweep when the slider first scrolls into view, to show it can be dragged. Skipped if the user already touched it.
   useEffect(() => {
@@ -62,14 +66,15 @@ function BeforeAfter({ before, data, report }: { before: ImageryFrame; data: Ima
 
   if (report) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         {[
-          { src: before.url, label: `Before: ${before.year}`, alt: `Earliest clear satellite image, ${before.year}` },
-          { src: after, label: "Today", alt: "Recent high-resolution satellite image" },
+          { src: before.url, release: 0, label: `${before.year}: satellite, ${before.metres} m detail`, alt: `Earliest clear satellite image, ${before.year}` },
+          { src: "", release: ARCHIVE[0].release, label: `Esri archive, ${ARCHIVE[0].year}`, alt: `Archive aerial photo, ${ARCHIVE[0].year}` },
+          { src: after, release: 0, label: "Today", alt: "Recent high-resolution satellite image" },
         ].map((p) => (
           <figure key={p.label}>
             <div className="relative aspect-[3/2] w-full overflow-hidden rounded-lg border border-line bg-panel">
-              <Pic src={p.src} alt={p.alt} eager />
+              {p.release ? <ArchiveTiles release={p.release} bounds={data.frameBounds} alt={p.alt} /> : <Pic src={p.src} alt={p.alt} eager />}
               <Ring fraction={data.ringFraction} />
             </div>
             <figcaption className="mt-1 text-base">{p.label}</figcaption>
@@ -80,11 +85,22 @@ function BeforeAfter({ before, data, report }: { before: ImageryFrame; data: Ima
   }
   return (
     <div ref={ref}>
+      <div role="group" aria-label="Compare today with" className="mb-3 flex flex-wrap gap-2">
+        {[{ year: before.year, label: `${before.year} · satellite` }, ...ARCHIVE.map((x) => ({ year: x.year as number, label: `${x.year} · sharp` }))].map((o) => (
+          <button key={o.year} type="button" aria-pressed={pick === o.year} onClick={() => setPick(o.year)} className={`btn ${pick === o.year ? "btn-primary" : "btn-ghost"}`}>
+            {o.label}
+          </button>
+        ))}
+      </div>
       <div className="relative aspect-[3/2] w-full touch-pan-y select-none overflow-hidden rounded-xl border border-line bg-panel">
         <Pic src={after} alt="Recent high-resolution satellite image of the zone" />
         {/* The before picture is clipped to the slider position: direct manipulation, so the clip itself is not eased. */}
         <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-          <Pic src={before.url} alt={`Earliest clear satellite image, ${before.year}`} />
+          {archive ? (
+            <ArchiveTiles release={archive.release} bounds={data.frameBounds} alt={`Archive aerial photo, ${archive.year}`} />
+          ) : (
+            <Pic src={before.url} alt={`Earliest clear satellite image, ${before.year}`} />
+          )}
         </div>
         <Ring fraction={data.ringFraction} />
         <div className="pointer-events-none absolute inset-y-0 flex w-0.5 items-center bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.35)]" style={{ left: `${pos}%` }} aria-hidden>
@@ -94,7 +110,7 @@ function BeforeAfter({ before, data, report }: { before: ImageryFrame; data: Ima
             </svg>
           </span>
         </div>
-        <Tag side="left">Before · <span className="font-mono">{before.year}</span></Tag>
+        <Tag side="left">Before · <span className="font-mono">{pick}</span></Tag>
         <Tag side="right">Today</Tag>
       </div>
       <label htmlFor={id} className="block">
@@ -109,11 +125,14 @@ function BeforeAfter({ before, data, report }: { before: ImageryFrame; data: Ima
             touched.current = true;
             setPos(Number(e.target.value));
           }}
-          aria-valuetext={`${pos}% showing ${before.year}`}
+          aria-valuetext={`${pos}% showing ${pick}`}
         />
       </label>
       <p className="text-base text-muted">
-        {before.year} is Landsat ({sensorName(before.sensor) === "Landsat" ? "each visible square is 30 m across, the finest detail that satellite recorded" : "10 m squares"}). Today is Esri high-resolution imagery (Maxar and others), dated within the last few years.
+        {archive
+          ? `Sharp aerial photo from Esri's ${archive.year} archive. The photo may have been taken before ${archive.year}.`
+          : `${before.year} comes from the Landsat satellite: detail down to ${before.metres} m, enough for land and water but not single buildings. Pick a sharp year to see buildings.`}{" "}
+        Today is Esri high-resolution imagery (Maxar and others). The charts below still use the full record from the 1980s.
       </p>
     </div>
   );

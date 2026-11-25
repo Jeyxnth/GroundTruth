@@ -37,7 +37,7 @@ export function MapPanel({
   pinVisible?: boolean;
   helper?: string;
 }) {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false); // off by default so buildings stay visible
   const toggleId = useId();
   const hasOverlay = !!overlay;
   return (

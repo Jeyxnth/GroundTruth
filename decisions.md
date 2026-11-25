@@ -59,3 +59,9 @@ Artifacts, each tied to the answer that calls for it:
 - Why: round 1 looked flat and the images were blurry; the designer asked for imagery-led and story-style with clean scroll animation
 - Rejected: keeping the two-column paper/ink layout; stretching small thumbnails (now 720x480 with Esri imagery for "Today")
 - Rests on: docs/design-review/round2
+
+## 2026-11-25 · Map and pictures: separate hero columns, place names, 1999 start, archive photos
+- Decided by: the designer asked for no overlap, place names, a 1999 start and buildings that can be identified
+- Why: pictures from 1999 to 2013 resolve 15 to 30 m, so building-level detail comes from the Esri archive (2014, 2018, 2022); names come from OpenFreeMap because CARTO now requires a key; the water layer is off by default so it does not hide buildings
+- Rejected: sharpening or pixel-squares for old Landsat frames (noise, blocks)
+- Rests on: rendered screenshots of the Ulwe demo site

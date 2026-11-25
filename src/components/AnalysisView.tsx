@@ -53,7 +53,7 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
   const report = mode === "report";
   const [zone, setZone] = useState<Zone>(initial);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [overlayOn, setOverlayOn] = useState(true);
+  const [overlayOn, setOverlayOn] = useState(false); // off by default so buildings stay visible
   const a = useAnalysis(zone);
   const moveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const { ref: heroRef, inView: heroInView } = useInView<HTMLElement>({ once: false, rootMargin: "-56px 0px 0px 0px", threshold: 0.15 });
@@ -103,7 +103,7 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
   const chapters: ReactNode = (
     <div className={`mx-auto w-full max-w-5xl space-y-20 px-4 sm:px-6 ${report ? "py-8" : "py-16 sm:py-20"}`}>
       <Reveal>
-        <SectionCard id="imagery" title="Then and now" section={a.imagery} reserve={rs("min-h-[640px] lg:min-h-[1000px]")} loadingContent={<div className="skeleton aspect-[3/2] w-full" />}>
+        <SectionCard id="imagery" title="Then and now" section={a.imagery} reserve={rs("min-h-[850px] lg:min-h-[1080px]")} loadingContent={<div className="skeleton aspect-[3/2] w-full" />}>
           {(d) => <ImageryPanel data={d} report={report} />}
         </SectionCard>
       </Reveal>
@@ -224,7 +224,7 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
 
   return (
     <>
-      <SiteHeader overHero progress showChip={!heroInView} chip={risk ? <BandChip risk={risk} /> : undefined}>
+      <SiteHeader progress showChip={!heroInView} chip={risk ? <BandChip risk={risk} /> : undefined}>
         <Link href={zoneUrl("/report", zone)} className="btn btn-header" data-testid="open-report">
           <span className="sm:hidden">Report</span>
           <span className="hidden sm:inline">Open report</span>
@@ -233,41 +233,26 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
 
       <main id="main">
         <section ref={heroRef} id="hero" className="hero" aria-label="This place today">
-          <div className="absolute inset-0">
-            <LazyMap
-              lat={zone.lat}
-              lng={zone.lng}
-              radiusM={zone.radiusM}
-              interactive
-              overlay={overlay ? { tileUrl: overlay.tileUrl } : null}
-              showOverlay={overlayOn}
-              onMove={onMove}
-              zoom={16.4}
-              intro
-            />
-          </div>
-          <div className="hero-scrim-top" aria-hidden />
-
-          <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto w-full max-w-6xl px-4 pt-[calc(var(--header-h)+18px)] sm:px-6">
-            <h1 className="pointer-events-auto max-w-3xl text-4xl leading-[1.05] text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] sm:text-6xl" data-testid="zone-title">
+          <div className="hero-head">
+            <h1 className="text-4xl leading-[1.1] sm:text-5xl" data-testid="zone-title">
               {title}
             </h1>
-            <p className="mt-2 text-base text-white/85">
+            <p className="mt-2 text-base text-muted">
               <span className="font-mono" translate="no">{formatCoords(zone.lat, zone.lng)}</span> · zone of {zone.radiusM} m radius
             </p>
-            <p role="note" className="mt-1 text-base text-white/80" data-testid="disclaimer">
-              <strong className="text-white">Screening tool, not a legal opinion.</strong> Based on satellite data. Verify with official land records.
+            <p role="note" className="mt-1 text-base text-muted" data-testid="disclaimer">
+              <strong className="text-foreground">Screening tool, not a legal opinion.</strong> Based on satellite data. Verify with official land records.
             </p>
-            <div className="pointer-events-auto mt-3 flex flex-wrap gap-2">
-              <button type="button" className="btn btn-float" aria-expanded={searchOpen} onClick={() => setSearchOpen((v) => !v)}>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" className="btn btn-ghost" aria-expanded={searchOpen} onClick={() => setSearchOpen((v) => !v)}>
                 Check another place
               </button>
-              <button type="button" className="btn btn-float" aria-pressed={overlayOn} disabled={!overlay} onClick={() => setOverlayOn((v) => !v)}>
-                {overlay ? (overlayOn ? "Water record: on" : "Water record: off") : "Water record loading…"}
+              <button type="button" className="btn btn-ghost" aria-pressed={overlayOn} disabled={!overlay} onClick={() => setOverlayOn((v) => !v)}>
+                {overlay ? (overlayOn ? "Hide water record" : "Show water record") : "Water record loading…"}
               </button>
             </div>
             {searchOpen && (
-              <div className="pointer-events-auto mt-3 max-w-xl rounded-xl bg-surface p-3 text-foreground shadow-2xl fade-in">
+              <div className="mt-3 fade-in">
                 <SearchBox
                   compact
                   onSelect={(p) => {
@@ -279,10 +264,24 @@ export function AnalysisView({ initial, mode }: { initial: Zone; mode: "analyze"
             )}
           </div>
 
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 lg:bottom-6 lg:left-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] lg:right-auto lg:w-[28rem]">
-            <div className="hero-sheet sheet-in pointer-events-auto rounded-t-2xl p-5 pb-6 lg:rounded-2xl">
-              {verdict}
-              <p className="mt-3 text-sm text-muted">Tap the map or drag the pin to check another spot. Imagery © Esri, Maxar, Earthstar Geographics. Water record: EC JRC and Google.</p>
+          <div className="hero-verdict sheet-in">
+            {verdict}
+            <p className="mt-3 text-sm text-muted">Tap the map or drag the pin to check another spot.</p>
+          </div>
+
+          <div className="hero-map">
+            <div className="absolute inset-0">
+              <LazyMap
+                lat={zone.lat}
+                lng={zone.lng}
+                radiusM={zone.radiusM}
+                interactive
+                overlay={overlay ? { tileUrl: overlay.tileUrl } : null}
+                showOverlay={overlayOn}
+                onMove={onMove}
+                zoom={17}
+                intro
+              />
             </div>
           </div>
         </section>
