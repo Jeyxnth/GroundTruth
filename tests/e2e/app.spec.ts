@@ -18,7 +18,7 @@ const SECTIONS = ["risk", "summary", "imagery", "timeline", "water", "elevation"
 const LOAD_TIMEOUT = 180_000;
 
 const control = CONTROL_SITES[0]!;
-const demo = DEMO_SITES.find((s) => s.id === "chowbaga-kolkata")!;
+const demo = DEMO_SITES.find((s) => s.id === "allapur-hyderabad")!;
 const open = (page: Page, s: { lat: number; lng: number; name: string; city: string }, path: "/analyze" | "/report" = "/analyze") =>
   page.goto(zoneUrl(path, { lat: s.lat, lng: s.lng, label: `${s.name}, ${s.city}` }));
 
@@ -157,7 +157,7 @@ test.describe("analysis against real data", () => {
     await open(page, demo);
     await waitForAllSections(page);
     await expect(page.getByTestId("risk-band")).toContainText("High");
-    await expect(page.getByTestId("transition")).toContainText(/The images suggest water until about \d{4}, and buildings from about \d{4}/);
+    await expect(page.getByTestId("transition")).toContainText(/The images suggest water until about \d{4}, then plants growing over it/);
     await expect(page.getByTestId("dating-note")).toContainText(/off by a year or two/);
     await expect(page.getByTestId("summary-text")).toContainText(/water/i);
     await expect(page.getByTestId("summary-text")).not.toContainText(/lake was filled/i);

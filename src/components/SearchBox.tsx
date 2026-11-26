@@ -84,7 +84,7 @@ export function SearchBox({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             name="q"
-            placeholder="Perungudi, Chennai or 12.9413, 80.2179…"
+            placeholder="Kukatpally, Hyderabad or 17.4612, 78.4149…"
             autoComplete="off"
             spellCheck={false}
             className="h-12 w-full rounded-lg border border-line bg-surface px-3.5 text-base"

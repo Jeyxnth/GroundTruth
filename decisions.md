@@ -77,3 +77,15 @@ Artifacts, each tied to the answer that calls for it:
 - Why: West Chowbaga Road and Bhagabanpur show ponds in the 1999 picture and housing today, and score High
 - Rejected: Chennai and other Hyderabad candidates, where water remained in the zone or the old picture did not show it clearly
 - Rests on: docs/demo-sites.md
+
+## 2026-11-26 · The Chennai demo site is removed
+- Decided by: the designer
+- Why: the before-and-after pictures did not support it as an example
+- Rejected: keeping it as a lower-scoring example
+- Rests on: the designer's screenshot of the 2014 and current pictures
+
+## 2026-11-26 · Allapur is the only former-water example
+- Decided by: the designer judged the other examples false
+- Why: an example that does not hold up misleads the viewer
+- Rejected: keeping Rajarhat, West Chowbaga Road and Bhagabanpur
+- Rests on: the designer's review

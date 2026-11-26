@@ -29,7 +29,7 @@ const url = (path: string, params: Record<string, string | number>) => {
 const call = async (res: Response) => ({ status: res.status, body: (await res.json()) as Record<string, any> }); // eslint-disable-line @typescript-eslint/no-explicit-any
 const at = (s: { lat: number; lng: number }) => ({ lat: s.lat, lng: s.lng });
 
-const demo = DEMO_SITES.find((s) => s.id === "chowbaga-kolkata")!;
+const demo = DEMO_SITES.find((s) => s.id === "allapur-hyderabad")!;
 const control = CONTROL_SITES.find((s) => s.id === "dharampeth-nagpur")!;
 
 describe("input validation on every route (no Earth Engine needed)", () => {

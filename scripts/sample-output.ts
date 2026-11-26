@@ -61,7 +61,7 @@ async function run(site: Site) {
 }
 
 async function main() {
-  await run(DEMO_SITES.find((s) => s.id === "chowbaga-kolkata")!);
+  await run(DEMO_SITES.find((s) => s.id === "allapur-hyderabad")!);
   await run(CONTROL_SITES.find((s) => s.id === "dharampeth-nagpur")!);
   console.log(`\nSaved to ${OUT}/`);
 }

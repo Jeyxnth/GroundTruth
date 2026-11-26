@@ -7,7 +7,6 @@ Target length: about 7 minutes 30 seconds. Live site: https://ground-truth-tawny
 1. Within 10 minutes of recording, open each of these once and wait for every section to load, so they open quickly on camera:
    - Allapur: https://ground-truth-tawny.vercel.app/analyze?lat=17.4612&lng=78.4149&q=Allapur%2C+Hyderabad
    - Dharampeth: https://ground-truth-tawny.vercel.app/analyze?lat=21.14&lng=79.065&q=Dharampeth%2C+Nagpur
-   - Spare second example, Chowbaga: https://ground-truth-tawny.vercel.app/analyze?lat=22.53&lng=88.4058&q=West+Chowbaga+Road%2C+Kolkata
 2. Check that the numbers quoted below match your screen. If one differs, say what the screen says.
 3. Browser: full screen, 100% zoom, dark theme, bookmarks bar hidden, notifications off.
 4. Keep the links in separate tabs, plus one tab on the home page.
@@ -86,9 +85,6 @@ Target length: about 7 minutes 30 seconds. Live site: https://ground-truth-tawny
 
 **Say:**
 > "This is a control site in Nagpur that was never water in the satellite record. It scores Low. We test the app against places like this, so we know it can say no."
-
-If there is time, show the Chowbaga tab: the 1999 picture shows ponds, and today the same ground is dense housing. Say:
-> "Here is another, on the eastern edge of Kolkata. In 1999 these were ponds."
 
 ### 9. How it works, and its limits (6:50 to 7:30)
 
