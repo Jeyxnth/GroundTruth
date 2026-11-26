@@ -1,0 +1,224 @@
+{
+  "ok": true,
+  "data": {
+    "season": {
+      "label": "Jan to Mar"
+    },
+    "before": {
+      "year": 1999,
+      "sensor": "landsat",
+      "url": "<signed-url-redacted>",
+      "metres": 15
+    },
+    "after": {
+      "year": 2026,
+      "sensor": "sentinel2",
+      "url": "<signed-url-redacted>",
+      "metres": 10
+    },
+    "frames": [
+      {
+        "year": 1999,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2000,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2001,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2002,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2003,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2004,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2005,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2006,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2007,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2008,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2009,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2010,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2011,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2012,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2013,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 30
+      },
+      {
+        "year": 2014,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2015,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2016,
+        "sensor": "landsat",
+        "url": "<signed-url-redacted>",
+        "metres": 15
+      },
+      {
+        "year": 2017,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2018,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2019,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2020,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2021,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2022,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2023,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2024,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2025,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      },
+      {
+        "year": 2026,
+        "sensor": "sentinel2",
+        "url": "<signed-url-redacted>",
+        "metres": 10
+      }
+    ],
+    "gifUrl": "<signed-url-redacted>",
+    "gifError": null,
+    "skippedYears": [],
+    "frameBounds": {
+      "west": 88.40142358769472,
+      "south": 22.527305066475027,
+      "east": 88.41017641230528,
+      "north": 22.532694933524976
+    },
+    "ringFraction": 0.3333333333333333,
+    "note": "One cloud-masked median composite per year (Jan to Mar). Years with under 80% clear coverage are skipped, not filled in. Pictures start in 1999; the charts and water record go further back. A 1999 picture, if shown, is from October to December.",
+    "overlay": {
+      "tileUrl": "<signed-url-redacted>",
+      "legend": {
+        "min": 1,
+        "max": 100,
+        "palette": [
+          "#c6dbef",
+          "#6baed6",
+          "#2171b5",
+          "#08306b"
+        ],
+        "label": "Water occurrence 1984 to 2021 (% of observations)"
+      },
+      "attribution": "Water occurrence: EC JRC/Google (Pekel et al. 2016)"
+    },
+    "overlayError": null
+  },
+  "meta": {
+    "notes": [],
+    "generatedAt": "2026-11-26T16:23:26.027Z",
+    "lat": 22.53,
+    "lng": 88.4058,
+    "radiusM": 150
+  }
+}

@@ -71,3 +71,9 @@ Artifacts, each tied to the answer that calls for it:
 - Why: the designer reported empty space and small text; body is now 18px with nothing under 15px, and desktop evidence sits side by side
 - Rejected: a single narrow column with tall reserved heights
 - Rests on: docs/design-review/round3
+
+## 2026-11-26 · Ulwe removed as a demo site; two Kolkata sites added
+- Decided by: the designer judged Ulwe a false positive
+- Why: West Chowbaga Road and Bhagabanpur show ponds in the 1999 picture and housing today, and score High
+- Rejected: Chennai and other Hyderabad candidates, where water remained in the zone or the old picture did not show it clearly
+- Rests on: docs/demo-sites.md

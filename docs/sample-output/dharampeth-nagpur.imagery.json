@@ -5,222 +5,198 @@
       "label": "Jan to Mar"
     },
     "before": {
-      "year": 1988,
+      "year": 1999,
       "sensor": "landsat",
-      "url": "<signed-url-redacted>"
+      "url": "<signed-url-redacted>",
+      "metres": 15
     },
     "after": {
       "year": 2026,
       "sensor": "sentinel2",
-      "url": "<signed-url-redacted>"
+      "url": "<signed-url-redacted>",
+      "metres": 10
     },
     "frames": [
       {
-        "year": 1988,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1989,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1990,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1991,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1992,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1993,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1994,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1995,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1997,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
-        "year": 1998,
-        "sensor": "landsat",
-        "url": "<signed-url-redacted>"
-      },
-      {
         "year": 1999,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2000,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2001,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2002,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2003,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2004,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2005,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2006,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2007,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2008,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2009,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2010,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2011,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2012,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2013,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 30
       },
       {
         "year": 2014,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2015,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2016,
         "sensor": "landsat",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 15
       },
       {
         "year": 2017,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2018,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2019,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2020,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2021,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2022,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2023,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2024,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2025,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       },
       {
         "year": 2026,
         "sensor": "sentinel2",
-        "url": "<signed-url-redacted>"
+        "url": "<signed-url-redacted>",
+        "metres": 10
       }
     ],
     "gifUrl": "<signed-url-redacted>",
     "gifError": null,
-    "skippedYears": [
-      1985,
-      1986,
-      1987,
-      1996
-    ],
+    "skippedYears": [],
     "frameBounds": {
-      "west": 79.06184202834388,
-      "south": 21.137031515416954,
-      "east": 79.06816801064716,
-      "north": 21.14296962576402
+      "west": 79.06066592506058,
+      "south": 21.137305066475026,
+      "east": 79.06933407493942,
+      "north": 21.142694933524975
     },
-    "note": "One cloud-masked median composite per year (Jan to Mar). Years with under 80% clear coverage are skipped, not filled in. Landsat frames are 30 m pixels and look soft when enlarged.",
+    "ringFraction": 0.3333333333333333,
+    "note": "One cloud-masked median composite per year (Jan to Mar). Years with under 80% clear coverage are skipped, not filled in. Pictures start in 1999; the charts and water record go further back. A 1999 picture, if shown, is from October to December.",
     "overlay": {
       "tileUrl": "<signed-url-redacted>",
       "legend": {
@@ -239,10 +215,8 @@
     "overlayError": null
   },
   "meta": {
-    "notes": [
-      "4 year(s) were skipped for lack of clear imagery."
-    ],
-    "generatedAt": "2026-11-24T14:06:22.947Z",
+    "notes": [],
+    "generatedAt": "2026-11-26T16:23:53.983Z",
     "lat": 21.14,
     "lng": 79.065,
     "radiusM": 150

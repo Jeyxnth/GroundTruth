@@ -1,81 +1,59 @@
 {
   "site": {
-    "id": "ulwe-navi-mumbai",
-    "name": "Ulwe",
-    "city": "Navi Mumbai",
-    "lat": 18.9777,
-    "lng": 73.026
+    "id": "chowbaga-kolkata",
+    "name": "West Chowbaga Road, Makaltala",
+    "city": "Kolkata",
+    "lat": 22.53,
+    "lng": 88.4058
   },
   "transition": {
     "humanFillingLikely": true,
-    "waterFromYear": 1992,
-    "waterUntilYear": 2005,
-    "filledFromYear": 2006,
-    "builtFromYear": 2009,
+    "waterFromYear": 1988,
+    "waterUntilYear": 2011,
+    "filledFromYear": null,
+    "builtFromYear": 2012,
     "gapYears": [
       1985,
       1986,
-      1987,
-      1989,
-      1996
+      1987
     ],
     "runs": [
       {
         "stage": "water",
         "startYear": 1988,
-        "endYear": 1988
+        "endYear": 2011
       },
       {
         "stage": "built",
-        "startYear": 1990,
-        "endYear": 1990
+        "startYear": 2012,
+        "endYear": 2019
       },
       {
         "stage": "vegetation",
-        "startYear": 1991,
-        "endYear": 1991
-      },
-      {
-        "stage": "water",
-        "startYear": 1992,
-        "endYear": 2005
-      },
-      {
-        "stage": "bare",
-        "startYear": 2006,
-        "endYear": 2008
+        "startYear": 2020,
+        "endYear": 2023
       },
       {
         "stage": "built",
-        "startYear": 2009,
-        "endYear": 2012
-      },
-      {
-        "stage": "bare",
-        "startYear": 2013,
-        "endYear": 2014
-      },
-      {
-        "stage": "built",
-        "startYear": 2015,
+        "startYear": 2024,
         "endYear": 2026
       }
     ],
     "latestStage": "built",
-    "kind": "fill-and-build",
-    "description": "Water 1992 to 2005, filled 2006 to 2008, built by 2009."
+    "kind": "water-to-built",
+    "description": "Water 1988 to 2011, then built-up from 2012 with no separate bare-soil stage visible in the yearly record."
   },
   "risk": {
-    "score": 69,
+    "score": 73,
     "band": "High",
     "factors": [
       {
         "id": "everWater",
         "name": "Water history",
-        "points": 22.8,
+        "points": 25,
         "maxPoints": 25,
         "available": true,
-        "reason": "Water covered at least 10% of the zone in 17 of 33 observed years (peak 86%)."
+        "reason": "Water covered at least 10% of the zone in 21 of 34 observed years (peak 54%)."
       },
       {
         "id": "permanence",
@@ -91,7 +69,7 @@
         "points": 16,
         "maxPoints": 20,
         "available": true,
-        "reason": "The water was filled or built over from about 2006, 20 years ago."
+        "reason": "The images suggest the water was filled or built over from about 2012, 14 years ago."
       },
       {
         "id": "distance",
@@ -104,18 +82,18 @@
       {
         "id": "elevation",
         "name": "Relative elevation",
-        "points": 2.2,
+        "points": 12,
         "maxPoints": 20,
         "available": true,
-        "reason": "The zone sits about 0.3 m below its surroundings within 1 km, so water drains toward it."
+        "reason": "The zone sits about 1.8 m below its surroundings within 1 km, so water drains toward it."
       },
       {
         "id": "flooding",
         "name": "Recent seasonal flooding",
-        "points": 10,
+        "points": 2.1,
         "maxPoints": 10,
         "available": true,
-        "reason": "Seasonal water covered up to 42% of the zone in the last 5 observed years."
+        "reason": "Seasonal water covered up to 5% of the zone in the last 5 observed years."
       }
     ],
     "coverage": 1,
@@ -123,7 +101,7 @@
   },
   "facts": {
     "location": {
-      "label": "Ulwe, Navi Mumbai",
+      "label": "West Chowbaga Road, Makaltala, Kolkata",
       "inIndia": true
     },
     "analysis": {
@@ -136,35 +114,35 @@
     "water": {
       "everWater": true,
       "classification": "seasonal",
-      "yearsWithWater": 17,
-      "yearsObserved": 33,
-      "firstWaterYear": 1990,
-      "lastWaterYear": 2021,
-      "peakWaterSharePercent": 86,
-      "currentlyWater": true,
+      "yearsWithWater": 21,
+      "yearsObserved": 34,
+      "firstWaterYear": 1987,
+      "lastWaterYear": 2011,
+      "peakWaterSharePercent": 54,
+      "currentlyWater": false,
       "distanceToCurrentWaterM": 0
     },
     "transition": {
-      "kind": "fill-and-build",
+      "kind": "water-to-built",
       "humanFillingLikely": true,
-      "waterFromYear": 1992,
-      "waterUntilYear": 2005,
-      "filledFromYear": 2006,
-      "builtFromYear": 2009,
+      "waterFromYear": 1988,
+      "waterUntilYear": 2011,
+      "filledFromYear": null,
+      "builtFromYear": 2012,
       "latestStage": "built"
     },
     "elevation": {
-      "relativeElevationM": -0.3,
-      "isLocalDepression": false
+      "relativeElevationM": -1.8,
+      "isLocalDepression": true
     },
     "risk": {
-      "score": 69,
+      "score": 73,
       "maxScore": 100,
       "band": "High",
       "topFactors": [
         {
           "name": "Water history",
-          "points": 23,
+          "points": 25,
           "maxPoints": 25
         },
         {
@@ -173,12 +151,12 @@
           "maxPoints": 20
         },
         {
-          "name": "Distance to current water",
-          "points": 10,
-          "maxPoints": 10
+          "name": "Relative elevation",
+          "points": 12,
+          "maxPoints": 20
         },
         {
-          "name": "Recent seasonal flooding",
+          "name": "Distance to current water",
           "points": 10,
           "maxPoints": 10
         }
@@ -187,7 +165,7 @@
     }
   },
   "summary": {
-    "text": "Satellite records show water in this zone in 17 of 33 observed years, between 1990 and 2021, and it was mostly seasonal water at a peak of 86% of the zone. The land-cover record shows water until 2005, bare or filled ground from 2006, and built-up land from 2009, which matches a fill-and-build pattern. The zone sits about 0.3 m below its surroundings within 1 km. The screening risk score is 69 out of 100, which is High. This is a screening result from satellite data, so verify it against official land records before deciding.",
+    "text": "Satellite records show water in this zone in 21 of 34 observed years, between 1987 and 2011, and it was mostly seasonal water at a peak of 54% of the zone. The images suggest water until about 2011, and buildings from about 2012. The zone sits about 1.8 m below its surroundings within 1 km, which is consistent with a local depression. The screening risk score is 73 out of 100, which is High. This is a screening result from satellite data, so verify it against official land records before deciding.",
     "source": "template",
     "fallbackReason": "ANTHROPIC_API_KEY is not set",
     "model": null
