@@ -108,7 +108,8 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
       // Landsat 7 launched in April 1999, so the 1999 picture comes from October to December instead.
       .filter(ee.Filter.calendarRange(year === 1999 ? 10 : season.startMonth, year === 1999 ? 12 : season.endMonth, "month"))
       // QA_PIXEL bits 1 to 4: dilated cloud, cirrus, cloud, cloud shadow.
-      .map((i: any) => i.updateMask(i.select("QA_PIXEL").bitwiseAnd(30).eq(0)))
+      // Very bright pixels (B8 above 0.35) are cloud the flag missed.
+      .map((i: any) => i.updateMask(i.select("QA_PIXEL").bitwiseAnd(30).eq(0).and(i.select("B8").lt(0.35))))
       .median()
       .reproject({ crs: "EPSG:3857", scale: 15 })
       .resample("bicubic");
@@ -122,16 +123,32 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
   // Years where the sharpened picture could not be made fall back to the ordinary 30 m one.
   const unsharpened = new Set<number>();
   const visualised = (year: number, sensor: Sensor) => {
-    if (metresFor(year, sensor) === 15 && !unsharpened.has(year)) return sharpened(year);
     // Pin the composite to its native grid first (a composite has no fixed projection, and resampling one without that
     // flattens it), then resample bicubically so enlarging gives smooth detail instead of hard squares.
-    const { image } = buildComposite(ee, sensor, zone, year, season, "all", { native: true });
-    return image
-      .select(["red", "green", "blue"])
-      .reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 })
-      .resample("bicubic")
-      .visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.24, gamma: 1.15 });
+    const plain = (y: number) =>
+      buildComposite(ee, sensor, zone, y, season, "all", { native: true })
+        .image.select(["red", "green", "blue"])
+        .reproject({ crs: "EPSG:3857", scale: sensor === "landsat" ? 30 : 10 })
+        .resample("bicubic")
+        .visualize({ bands: ["red", "green", "blue"], min: 0.03, max: 0.24, gamma: 1.15 });
+    // Landsat pictures can have holes (cloud, or the 2003 onward Landsat 7 stripes). The years either side lie underneath,
+    // so a hole shows the same ground a year apart instead of black.
+    const ordinary =
+      sensor === "landsat" ? ee.ImageCollection([plain(Math.max(year - 1, FIRST_YEAR)), plain(Math.min(year + 1, lastYear)), plain(year)]).mosaic() : plain(year);
+    if (metresFor(year, sensor) !== 15 || unsharpened.has(year)) return ordinary;
+    // Gaps in the sharpened picture (cloud, or ground the satellite pass missed) show the same year's ordinary
+    // picture underneath instead of black.
+    return ee.ImageCollection([ordinary, sharpened(year)]).mosaic();
   };
+
+  // The 1999 sharpened picture comes from a short window and can cover only part of the frame. A part-sharpened frame looks
+  // like two pictures patched together, so then the whole frame uses the ordinary picture.
+  if (usable.some((u) => u.year === 1999 && metresFor(u.year, u.sensor) === 15)) {
+    const covered = await evaluate<number | null>(
+      sharpened(1999).select(0).mask().rename("v").reduceRegion({ reducer: ee.Reducer.mean(), geometry: view, scale: 30, maxPixels: 1e7 }).get("v"),
+    ).catch(() => 0);
+    if ((covered ?? 0) < 0.98) unsharpened.add(1999);
+  }
 
   const frames = await mapPool(usable, 8, async (u): Promise<ImageryFrame> => {
     const thumb = () =>
@@ -139,14 +156,14 @@ export async function computeImagery(lat: number, lng: number, radiusM: number, 
         (cb) => visualised(u.year, u.sensor).getThumbURL({ region: view, dimensions: `${FRAME_W}x${FRAME_H}`, format: "jpg" }, cb as any),
         `thumbnail ${u.year}`,
       );
-    let metres = metresFor(u.year, u.sensor);
+    let metres = unsharpened.has(u.year) ? 30 : metresFor(u.year, u.sensor);
     const url = await thumb().catch((e) => {
       if (metres !== 15) throw e;
       unsharpened.add(u.year);
       metres = 30;
       return thumb();
     });
-    return { year: u.year, sensor: u.sensor, url, metres };
+    return { year: u.year, sensor: u.sensor, url, metres: unsharpened.has(u.year) ? 30 : metres };
   });
 
   let gifUrl: string | null = null;

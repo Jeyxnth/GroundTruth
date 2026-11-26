@@ -266,7 +266,7 @@ export function ImageryPanel({ data, report = false }: { data: ImageryPayload; r
         )}
       </div>
       <p className="mt-3 text-base text-muted">
-        One cloud-free picture per year, {data.season.label}.{data.skippedYears.length > 0 && ` No clear picture: ${data.skippedYears.join(", ")}.`}
+        One picture per year, {data.season.label}; gaps in older ones are filled from the years either side.{data.skippedYears.length > 0 && ` No clear picture: ${data.skippedYears.join(", ")}.`}
       </p>
     </div>
   );
